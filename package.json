@@ -1,6 +1,6 @@
 {
   "name": "cac-panel-extension",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
@@ -13,6 +13,7 @@
     "@types/react-dom": "^17.0.2",
     "@types/react-router-dom": "^5.1.7",
     "bootstrap": "^4.6.0",
+    "cross-env": "^7.0.3",
     "husky": "^4.3.8",
     "node-html-parser": "^3.1.0",
     "popper.js": "^1.16.1",
@@ -26,7 +27,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts build",
     "test": "react-scripts test",
     "prettier": "prettier --write --ignore-unknown .",
     "eject": "react-scripts eject"
