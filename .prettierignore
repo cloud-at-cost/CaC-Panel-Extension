@@ -1,0 +1,7 @@
+# Ignore artifacts:
+dist
+build
+coverage
+
+# html in backend
+*.html

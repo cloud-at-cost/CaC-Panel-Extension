@@ -1,26 +1,29 @@
-import { JSDOM } from 'jsdom';
+import { parse } from "node-html-parser";
 
 type CloudatCostSettingsResponse = {
-	name: string,
-	email: string
+  name: string,
+  email: string,
 };
 
-const CAC_URL = 'https://panel.cloudatcost.com/panel/_config';
+const CAC_URL = "https://panel.cloudatcost.com/panel/_config";
 const api = {
-	cloudatcost: {
-		getSettings: (): Promise<CloudatCostSettingsResponse> => {
-			return fetch(`${CAC_URL}/userSettings.php`).then((resp) => resp.text()).then((text) => {
-				console.log(text);
-				// parse text via HTML
-				const html = new JSDOM(text);
-				const name = html.getElementById('Name');
-				const email = html.getElementById('email');
-				return {
-					name: name,
-					email: email
-				}
-			});
-		}
-	}
+  cloudatcost: {
+    getSettings: (): Promise<CloudatCostSettingsResponse> => {
+      return fetch(
+        `https://panel.cloudatcost.com/panel/_config/userSettings.php`
+      )
+        .then((resp) => resp.text())
+        .then((text) => {
+          // parse text via HTML
+          const dom = parse(text);
+          const name = dom.querySelector("#Name").getAttribute("value");
+          const email = dom.querySelector("#email").getAttribute("value");
+          return {
+            name: name,
+            email: email,
+          };
+        });
+    },
+  },
 };
 export default api;

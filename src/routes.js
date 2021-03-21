@@ -1,5 +1,5 @@
 const routes = {
-	home: '/',
-	cloudatcostminer: '/miner'
+  home: "/",
+  cloudatcostminer: "/miner",
 };
 export default routes;
