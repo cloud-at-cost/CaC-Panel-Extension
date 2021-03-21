@@ -75,7 +75,7 @@ const api = {
           const transactions: CloudatCostMiningWalletTransaction[] = [];
 
           const tbody = dom.querySelector("tbody");
-          if (tbody?.childNodes === null) {
+          if (tbody?.childNodes) {
             for (let tr of tbody.childNodes) {
               if (tr.childNodes.length > 0) {
                 const minerID = tr.childNodes[1].text;
