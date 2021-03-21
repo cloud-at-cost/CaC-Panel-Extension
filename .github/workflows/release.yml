@@ -21,7 +21,11 @@ jobs:
       - run: npm run build
         env:
           CI: ""
-      - run: zip build.zip build
+      - uses: papeloto/action-zip@v1
+        with:
+          files: build/
+          recursive: true
+          dest: build.zip
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
