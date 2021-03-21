@@ -19,6 +19,8 @@ jobs:
           node-version: "14.x"
       - run: npm install
       - run: npm run build
+        env:
+          CI: ""
       - run: zip build.zip build
       - name: Create release
         id: create_release
