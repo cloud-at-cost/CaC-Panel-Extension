@@ -15,6 +15,9 @@ type CloudatCostMiningWalletTransaction = {
 type CloudatCostMiningWalletResponse = {
   transactions: CloudatCostMiningWalletTransaction[],
 };
+type CloudatCostLoginResponse = {
+  valid: boolean,
+};
 type CloudatCocksPayoutResponse = {};
 
 const CAC_CONFIG_URL = "https://panel.cloudatcost.com/panel/_config";
@@ -52,6 +55,25 @@ const api = {
   },
   cloudatcost: {
     URL: CAC_URL,
+    login: (
+      email: string,
+      password: string
+    ): Promise<CloudatCostLoginResponse> => {
+      const formData = new FormData();
+      formData.append("username", email);
+      formData.append("password", password);
+      formData.append("failedpage", "login-failed-2.php");
+      formData.append("submit", "Login");
+      return fetch(`${CAC_URL}/manage-check2.php`, {
+        method: "POST",
+        body: formData,
+      }).then((resp) => {
+        // check where we're redirected to
+        return {
+          valid: resp.url === CAC_URL,
+        };
+      });
+    },
     getSettings: (): Promise<CloudatCostSettingsResponse> => {
       return fetch(`${CAC_CONFIG_URL}/userSettings.php`)
         .then((resp) => resp.text())
