@@ -1,18 +1,18 @@
 import { Component } from "react";
 import api from "../api";
 
-type CloudatCostLoginProps = {
+type CloudatCocksLoginProps = {
   onLoginValid: () => void;
 };
-type CloudatCostLoginState = {
+type CloudatCocksLoginState = {
   attemptedLogin: boolean;
 };
 
-class CloudatCostLogin extends Component<
-  CloudatCostLoginProps,
-  CloudatCostLoginState
+class CloudatCocksLogin extends Component<
+  CloudatCocksLoginProps,
+  CloudatCocksLoginState
 > {
-  constructor(props: CloudatCostLoginProps) {
+  constructor(props: CloudatCocksLoginProps) {
     super(props);
     this.state = {
       attemptedLogin: false,
@@ -21,17 +21,18 @@ class CloudatCostLogin extends Component<
   }
 
   checkLoggedIn() {
-    fetch(api.cloudatcost.URL).then((resp) => {
+    fetch(`${api.cloudatcocks.URL}/login`).then((resp) => {
       // if we were redirected, they need to login!
       if (resp.redirected === true) {
+        // get CSRF token for session
+        api.cloudatcocks.getCSRFToken().then((token) => {
+          // let parent know we're logged in
+          this.props.onLoginValid(token);
+        });
+      } else {
         // mark attempt and wait for user
         this.setState({
           attemptedLogin: true,
-        });
-      } else {
-        // let parent know we're logged in
-        api.cloudatcost.getSettings().then((user) => {
-          this.props.onLoginValid(user);
         });
       }
     });
@@ -47,7 +48,7 @@ class CloudatCostLogin extends Component<
         {this.state.attemptedLogin && (
           <div>
             <p>
-              Please ensure you're logged in to the CloudatCost Panel and click
+              Please ensure you're logged in to the CloudatCocks Panel and click
               the below button for verification
             </p>
             <button
@@ -59,10 +60,10 @@ class CloudatCostLogin extends Component<
           </div>
         )}
         {this.state.attemptedLogin === false && (
-          <p>Checking your login status with the CloudatCost Panel...</p>
+          <p>Checking your login status with the CloudatCocks Panel...</p>
         )}
       </div>
     );
   }
 }
-export default CloudatCostLogin;
+export default CloudatCocksLogin;

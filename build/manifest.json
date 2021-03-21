@@ -12,5 +12,5 @@
     "64": "cac_icon64.png"
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-  "permissions": ["https://panel.cloudatcost.com/"]
+  "permissions": ["https://panel.cloudatcost.com/", "https://mining.cloudatcocks.com/"]
 }
