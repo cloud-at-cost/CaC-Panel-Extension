@@ -19,6 +19,7 @@ type CloudatCostLoginResponse = {
   valid: boolean,
 };
 type CloudatCocksPayoutResponse = {};
+type CloudatCocksLoginResponse = CloudatCostLoginResponse;
 
 const CAC_CONFIG_URL = "https://panel.cloudatcost.com/panel/_config";
 const CAC_URL = "https://panel.cloudatcost.com";
@@ -26,6 +27,29 @@ const CAC_MINING = "https://mining.cloudatcocks.com";
 const api = {
   cloudatcocks: {
     URL: CAC_MINING,
+    login: (
+      email: string,
+      password: string,
+      token: string
+    ): Promise<CloudatCocksLoginResponse> => {
+      const loginData = {
+        email: email,
+        password: password,
+      };
+      return fetch(`${CAC_MINING}/login`, {
+        method: "POST",
+        body: JSON.stringify(loginData),
+        headers: {
+          "X-CSRF-TOKEN": token,
+          "content-type": "application/json",
+        },
+      }).then((resp) => {
+        // check where we're redirected to
+        return {
+          valid: resp.url === `${CAC_MINING}/dashboard`,
+        };
+      });
+    },
     getCSRFToken: (): Promise<string> => {
       return fetch(`${CAC_MINING}/login`)
         .then((resp) => resp.text())

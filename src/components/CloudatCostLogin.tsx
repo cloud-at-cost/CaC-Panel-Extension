@@ -78,8 +78,11 @@ class CloudatCostLogin extends Component<
         {this.state.attemptedLogin && (
           <div>
             <p>
-              Please ensure you're logged in to the CloudatCost Panel and click
-              the below button for verification
+              Please ensure you're logged in to the{" "}
+              <a href={api.cloudatcost.URL} target="_blank">
+                CloudatCost Panel
+              </a>{" "}
+              and click the below button for verification
             </p>
             <button
               className="btn btn-primary"
