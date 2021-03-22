@@ -28,6 +28,12 @@ class Sidebar extends Component {
             <span>Miners</span>
           </Link>
         </li>
+        <li className="nav-item">
+          <Link className="nav-link" to={routes.cloudatcostvm}>
+            <i className="fas fa-fw fa-server"></i>
+            <span>VMs</span>
+          </Link>
+        </li>
       </ul>
     );
   }

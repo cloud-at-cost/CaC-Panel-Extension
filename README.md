@@ -5,12 +5,13 @@ This extension aims to help users with the CloudatCost panel and supplements som
 ## Current Features
 
 - Login to the CloudatCost and CloudatCock Panels
+  - Saves credentials under "settings" to allow for autologin (_NOTE:_ These are saved in plaintext and only accessible by this extension, there seems to not be a very secure method to store this data given this is all done client side. Your password is ONLY stored on your machine!)
+- Insertion of hidden/removed OSes on building pages
 - Grabs current transaction from CloudatCost mining and forwards to the C@C Minig panel
   - Assumes the miner is already setup
 
 ## Planned Features
 
-- Insertion of hidden/removed OSes on building pages
 - Automatic transaction forwarding to the C@C Mining panel
 - Build to Google Chrome extension store (or at least an easier way of distribution)
 - Build to other browsers
