@@ -4,8 +4,12 @@ import api from "../api";
 type CloudatCostVMProps = {};
 type CloudatCostVMState = {
   error?: string;
+  accountID?: string;
   devVersion: string;
   injectionStatus?: string;
+  serverID?: string;
+  servers: CloudatCostServersResponse;
+  serverDeleteStatus?: string;
 };
 
 class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
@@ -13,10 +17,49 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
     super(props);
     this.state = {
       error: null,
+      accountID: null,
       devVersion: "1",
       injectionStatus: null,
+      serverID: null,
+      servers: [],
+      serverDeleteStatus: null,
     };
     this.handleInjectOS = this.handleInjectOS.bind(this);
+    this.handleDeleteServer = this.handleDeleteServer.bind(this);
+  }
+
+  componentDidMount() {
+    api.cloudatcost.getAccountID().then((accountID) => {
+      this.setState({
+        accountID: accountID,
+      });
+    });
+    api.cloudatcost.getServers().then((resp) => {
+      this.setState({
+        servers: resp.servers,
+      });
+    });
+  }
+
+  handleDeleteServer() {
+    if (!this.state.serverID || !this.state.accountID) {
+      return;
+    }
+    this.setState(
+      {
+        serverDeleteStatus: null,
+      },
+      () => {
+        api.cloudatcost
+          .deleteServer(this.state.accountID, this.state.serverID)
+          .then((resp) => {
+            this.setState({
+              serverID: null,
+              serverDeleteStatus: `Server with ID: ${this.state.serverID} was successfully deleted!`,
+            });
+          });
+      }
+    );
   }
 
   handleInjectOS() {
@@ -88,6 +131,49 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
   render() {
     return (
       <div className="row">
+        <div className="col-md-12">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Server Management
+              </h6>
+            </div>
+            <div class="card-body">
+              <div className="text-center">
+                <div className="input-group">
+                  <select
+                    className="custom-select"
+                    value={this.state.serverID}
+                    onChange={(e) =>
+                      this.setState({ serverID: e.target.value })
+                    }
+                  >
+                    <option selected disabled>
+                      Select Server
+                    </option>
+                    {this.state.servers.map((server) => (
+                      <option value={server.id}>{server.name}</option>
+                    ))}
+                    ;
+                  </select>
+                  <div className="input-group-append">
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={() => this.handleDeleteServer()}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  {this.state.serverDeleteStatus && (
+                    <p className="text-success">
+                      {this.state.serverDeleteStatus}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="col-md-12">
           <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
