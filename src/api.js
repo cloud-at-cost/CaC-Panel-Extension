@@ -18,6 +18,14 @@ type CloudatCostMiningWalletResponse = {
 type CloudatCostLoginResponse = {
   valid: boolean,
 };
+type CloudatCostServer = {
+  name: string,
+  id: string,
+};
+type CloudatCostServersResponse = {
+  servers: CloudatCostServer[],
+};
+
 type CloudatCocksPayoutResponse = {};
 type CloudatCocksLoginResponse = CloudatCostLoginResponse;
 
@@ -138,6 +146,51 @@ const api = {
           valid: resp.url === CAC_URL,
         };
       });
+    },
+    getAccountID: (): Promise<string> => {
+      return fetch(`${CAC_URL}/script`)
+        .then((resp) => resp.text())
+        .then((text) => {
+          // parse text via HTML
+          const dom = parse(text);
+          const accountID = dom
+            .querySelector("input[name='cid']")
+            .getAttribute("value");
+          return accountID;
+        });
+    },
+    getServers: (): Promise<CloudatCostServersResponse> => {
+      return fetch(CAC_URL)
+        .then((resp) => resp.text())
+        .then((text) => {
+          // parse text via HTML
+          const dom = parse(text);
+          // This is messy because C@C can't be bothered to have valid HTML and the parser interprets it weirdly
+          const tds = dom.querySelectorAll("td");
+          const servers = [];
+          for (let td of tds) {
+            // check for ID field to figure out if this table is for a server
+            if (td.id?.indexOf("PanelTitle") !== -1) {
+              // extract ID
+              const serverID = td.id?.split("_")[1];
+              const serverName = td.innerText?.replace(/&nbsp;/gi, "");
+              if (serverID) {
+                servers.push({
+                  name: serverName,
+                  id: serverID,
+                });
+              }
+            }
+          }
+          return {
+            servers: servers,
+          };
+        });
+    },
+    deleteServer: (accountID: string, serverID: string) => {
+      return fetch(
+        `${CAC_CONFIG_URL}/serverdeletecloudpro.php?cid=${accountID}&sid=${serverID}&svn=undefined&reserve=false`
+      );
     },
     getSettings: (): Promise<CloudatCostSettingsResponse> => {
       return fetch(`${CAC_CONFIG_URL}/userSettings.php`)
