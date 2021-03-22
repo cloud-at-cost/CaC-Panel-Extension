@@ -12,6 +12,8 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import CloudatCostLogin from "./components/CloudatCostLogin";
 import CloudatCostMiner from "./components/CloudatCostMiner";
+import CloudatCostVM from "./components/CloudatCostVM";
+import Settings from "./components/Settings";
 
 type AppProps = {};
 type AppState = {
@@ -67,6 +69,11 @@ class App extends Component<AppProps, AppState> {
                         path={routes.cloudatcostminer}
                         component={CloudatCostMiner}
                       />
+                      <Route
+                        path={routes.cloudatcostvm}
+                        component={CloudatCostVM}
+                      />
+                      <Route path={routes.settings} component={Settings} />
                     </Switch>
                   </div>
                 </div>

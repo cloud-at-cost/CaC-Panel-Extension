@@ -15,14 +15,82 @@ type CloudatCostMiningWalletTransaction = {
 type CloudatCostMiningWalletResponse = {
   transactions: CloudatCostMiningWalletTransaction[],
 };
+type CloudatCostLoginResponse = {
+  valid: boolean,
+};
 type CloudatCocksPayoutResponse = {};
+type CloudatCocksLoginResponse = CloudatCostLoginResponse;
+
+type SheetsOS = {
+  name: string,
+  id: string,
+};
+type SheetsOSResponse = {
+  oses: SheetsOS[],
+};
 
 const CAC_CONFIG_URL = "https://panel.cloudatcost.com/panel/_config";
 const CAC_URL = "https://panel.cloudatcost.com";
 const CAC_MINING = "https://mining.cloudatcocks.com";
+const CAC_OS_SHEET = (tab) =>
+  `https://spreadsheets.google.com/feeds/list/1DH8evGlJ8sZ6CU3Iy23TeHzMbfLV8bCQFmXtr7YwydQ/${tab}/public/values?alt=json`;
 const api = {
+  sheets: {
+    OS_URL:
+      "https://docs.google.com/spreadsheets/d/1DH8evGlJ8sZ6CU3Iy23TeHzMbfLV8bCQFmXtr7YwydQ",
+    getOS: (devVersion: string): Promise<SheetsOSResponse> => {
+      let sheetId = 1;
+      if (devVersion == "1") {
+        sheetId = 1;
+      } else if (devVersion == "3") {
+        sheetId = 2;
+      } else if (devVersion == "4") {
+        sheetId = 3;
+      }
+      return fetch(CAC_OS_SHEET(sheetId))
+        .then((resp) => resp.json())
+        .then((json) => {
+          // parse OSes
+          const oses = [];
+          for (let entry of json.feed.entry) {
+            const osName = entry["gsx$osname"]["$t"];
+            const osId = entry["gsx$osid"]["$t"];
+            oses.push({
+              name: osName,
+              id: osId,
+            });
+          }
+          return {
+            oses: oses,
+          };
+        });
+    },
+  },
   cloudatcocks: {
     URL: CAC_MINING,
+    login: (
+      email: string,
+      password: string,
+      token: string
+    ): Promise<CloudatCocksLoginResponse> => {
+      const loginData = {
+        email: email,
+        password: password,
+      };
+      return fetch(`${CAC_MINING}/login`, {
+        method: "POST",
+        body: JSON.stringify(loginData),
+        headers: {
+          "X-CSRF-TOKEN": token,
+          "content-type": "application/json",
+        },
+      }).then((resp) => {
+        // check where we're redirected to
+        return {
+          valid: resp.url === `${CAC_MINING}/dashboard`,
+        };
+      });
+    },
     getCSRFToken: (): Promise<string> => {
       return fetch(`${CAC_MINING}/login`)
         .then((resp) => resp.text())
@@ -52,6 +120,25 @@ const api = {
   },
   cloudatcost: {
     URL: CAC_URL,
+    login: (
+      email: string,
+      password: string
+    ): Promise<CloudatCostLoginResponse> => {
+      const formData = new FormData();
+      formData.append("username", email);
+      formData.append("password", password);
+      formData.append("failedpage", "login-failed-2.php");
+      formData.append("submit", "Login");
+      return fetch(`${CAC_URL}/manage-check2.php`, {
+        method: "POST",
+        body: formData,
+      }).then((resp) => {
+        // check where we're redirected to
+        return {
+          valid: resp.url === CAC_URL,
+        };
+      });
+    },
     getSettings: (): Promise<CloudatCostSettingsResponse> => {
       return fetch(`${CAC_CONFIG_URL}/userSettings.php`)
         .then((resp) => resp.text())
