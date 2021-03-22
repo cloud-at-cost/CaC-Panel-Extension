@@ -42,6 +42,7 @@ const CAC_URL = "https://panel.cloudatcost.com";
 const CAC_MINING = "https://mining.cloudatcocks.com";
 const CAC_OS_SHEET = (tab) =>
   `https://spreadsheets.google.com/feeds/list/1DH8evGlJ8sZ6CU3Iy23TeHzMbfLV8bCQFmXtr7YwydQ/${tab}/public/values?alt=json`;
+
 const api = {
   sheets: {
     OS_URL:

@@ -7,6 +7,10 @@
     "default_popup": "index.html",
     "default_title": "C@C Panel Helper"
   },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
   "icons": {
     "16": "cac_icon16.png",
     "64": "cac_icon64.png"
@@ -17,6 +21,7 @@
     "https://mining.cloudatcocks.com/",
     "storage",
     "activeTab",
-    "tabs"
+    "tabs",
+    "alarms"
   ]
 }

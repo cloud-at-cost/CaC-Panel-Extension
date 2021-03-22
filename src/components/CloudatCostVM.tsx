@@ -140,6 +140,14 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
             </div>
             <div class="card-body">
               <div className="text-center">
+                <p className="lead">
+                  Server deletion: This tool allows for you to delete servers in
+                  your account (most useful for install pending servers)
+                </p>
+                <p>
+                  To use this tool, please select a server from the dropdown and
+                  then click "Delete".
+                </p>
                 <div className="input-group">
                   <select
                     className="custom-select"

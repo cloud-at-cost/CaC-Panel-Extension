@@ -4,8 +4,10 @@ type SettingsProps = {};
 type SettingsState = {
   cacEmail: string;
   cacPassword: string;
+  cacSaved: boolean;
   cacMineEmail: string;
   cacMinePassword: string;
+  cacMineSaved: boolean;
 };
 
 class Settings extends Component<SettingsProps, SettingsState> {
@@ -14,8 +16,10 @@ class Settings extends Component<SettingsProps, SettingsState> {
     this.state = {
       cacEmail: "",
       cacPassword: "",
+      cacSaved: false,
       cacMineEmail: "",
       cacMinePassword: "",
+      cacMineSaved: false,
     };
     this.handleSaveCac = this.handleSaveCac.bind(this);
     this.handleSaveCacMine = this.handleSaveCacMine.bind(this);
@@ -25,6 +29,7 @@ class Settings extends Component<SettingsProps, SettingsState> {
     chrome.storage.local.set({
       cacEmail: this.state.cacEmail,
       cacPassword: this.state.cacPassword,
+      cacSaved: true,
     });
   }
 
@@ -32,6 +37,7 @@ class Settings extends Component<SettingsProps, SettingsState> {
     chrome.storage.local.set({
       cacMineEmail: this.state.cacMineEmail,
       cacMinePassword: this.state.cacMinePassword,
+      cacMineSaved: true,
     });
   }
 
@@ -91,6 +97,9 @@ class Settings extends Component<SettingsProps, SettingsState> {
                   </button>
                 </div>
               </div>
+              {this.state.cacSaved && (
+                <p className="text-success">Settings saved successfully!</p>
+              )}
             </div>
           </div>
         </div>
@@ -137,6 +146,9 @@ class Settings extends Component<SettingsProps, SettingsState> {
                   </button>
                 </div>
               </div>
+              {this.state.cacMineSaved && (
+                <p className="text-success">Settings saved successfully!</p>
+              )}
             </div>
           </div>
         </div>
