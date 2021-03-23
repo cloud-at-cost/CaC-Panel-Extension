@@ -1,40 +1,40 @@
 import { parse } from "node-html-parser";
 
 type CloudatCostSettingsResponse = {
-  name: string,
-  email: string,
+  name: string;
+  email: string;
 };
 type CloudatCostMiningWalletTransaction = {
-  minerID: string,
-  packageID: string,
-  minerType: string,
-  amount: string,
-  date: string,
-  type: string,
+  minerID: string;
+  packageID: string;
+  minerType: string;
+  amount: string;
+  date: string;
+  type: string;
 };
 type CloudatCostMiningWalletResponse = {
-  transactions: CloudatCostMiningWalletTransaction[],
+  transactions: CloudatCostMiningWalletTransaction[];
 };
 type CloudatCostLoginResponse = {
-  valid: boolean,
+  valid: boolean;
 };
 type CloudatCostServer = {
-  name: string,
-  id: string,
+  name: string;
+  id: string;
 };
 type CloudatCostServersResponse = {
-  servers: CloudatCostServer[],
+  servers: CloudatCostServer[];
 };
 
 type CloudatCocksPayoutResponse = {};
 type CloudatCocksLoginResponse = CloudatCostLoginResponse;
 
 type SheetsOS = {
-  name: string,
-  id: string,
+  name: string;
+  id: string;
 };
 type SheetsOSResponse = {
-  oses: SheetsOS[],
+  oses: SheetsOS[];
 };
 
 const CAC_CONFIG_URL = "https://panel.cloudatcost.com/panel/_config";
@@ -115,10 +115,10 @@ const api = {
       payouts: CloudatCostMiningWalletResponse,
       token: string
     ): Promise<CloudatCocksPayoutResponse> => {
-      payouts = { payouts: payouts.transactions };
+      const payoutsData = { payouts: payouts.transactions };
       return fetch(`${CAC_MINING}/payouts/create`, {
         method: "POST",
-        body: JSON.stringify(payouts),
+        body: JSON.stringify(payoutsData),
         headers: {
           "X-CSRF-TOKEN": token,
           "content-type": "application/json",

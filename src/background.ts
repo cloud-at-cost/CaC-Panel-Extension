@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./api.js";
 
 const forwardTransactions = async () => {
   console.log("Forwarding transactions...");
@@ -52,7 +52,7 @@ const forwardTransactions = async () => {
                   return await api.cloudatcocks
                     .login(result.cacMineEmail, result.cacMinePassword, token)
                     .then((user) => {
-                      return user.valid;
+                      return token;
                     });
                 });
             } else {

@@ -8,8 +8,7 @@
     "default_title": "C@C Panel Helper"
   },
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "page": "background.html"
   },
   "icons": {
     "16": "cac_icon16.png",
