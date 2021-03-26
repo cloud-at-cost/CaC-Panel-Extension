@@ -4,11 +4,11 @@
   "version": "1.0",
   "manifest_version": 2,
   "browser_action": {
-    "default_popup": "index.html",
+    "default_popup": "popup.html",
     "default_title": "C@C Panel Helper"
   },
   "background": {
-    "page": "background.html"
+    "scripts": ["static/js/background.js"]
   },
   "icons": {
     "16": "cac_icon16.png",

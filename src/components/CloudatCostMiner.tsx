@@ -5,6 +5,7 @@ import api from "../api";
 type CloudatCostMinerProps = {};
 type CloudatCostMinerState = {
   cloudatCocksToken?: string;
+  currentBalance?: string;
   payoutSubmitted: boolean;
   forwardTransactionTime: number;
   forwardTransactionTimeStatus?: string;
@@ -19,6 +20,7 @@ class CloudatCostMiner extends Component<
     super(props);
     this.state = {
       cloudatCocksToken: null,
+      currentBalance: null,
       payoutSubmitted: false,
       forwardTransactionTime: 0,
       forwardTransactionTimeStatus: null,
@@ -27,6 +29,7 @@ class CloudatCostMiner extends Component<
     this.getCurrentMinerStats = this.getCurrentMinerStats.bind(this);
     this.handleCloudatCocksLogin = this.handleCloudatCocksLogin.bind(this);
     this.handleSetBackgroundTime = this.handleSetBackgroundTime.bind(this);
+    this.handleGetCurrentBalance = this.handleGetCurrentBalance.bind(this);
   }
 
   componentDidMount() {
@@ -36,6 +39,15 @@ class CloudatCostMiner extends Component<
           forwardTransactionTime: result.forwardTransactionTime,
         });
       }
+    });
+    this.handleGetCurrentBalance();
+  }
+
+  handleGetCurrentBalance() {
+    api.cloudatcocks.getCurrentBalance().then((balance) => {
+      this.setState({
+        currentBalance: balance,
+      });
     });
   }
 
@@ -101,6 +113,29 @@ class CloudatCostMiner extends Component<
           {this.state.cloudatCocksToken === null && (
             <CloudatCocksLogin onLoginValid={this.handleCloudatCocksLogin} />
           )}
+        </div>
+        <div className="col-md-12">
+          <div className="card shadow mb-4">
+            <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 className="m-0 font-weight-bold text-primary">
+                Current Balance
+              </h6>
+            </div>
+            <div className="card-body">
+              {this.state.currentBalance && (
+                <div className="text-center">
+                  <h3>
+                    ${this.state.currentBalance}
+                    <span> </span>
+                    <i
+                      className="fas fa-redo"
+                      onClick={() => this.handleGetCurrentBalance()}
+                    ></i>
+                  </h3>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="col-md-12">
           <div className="card shadow mb-4">

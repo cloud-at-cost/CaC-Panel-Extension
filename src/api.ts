@@ -1,16 +1,16 @@
 import { parse } from "node-html-parser";
 
 type CloudatCostSettingsResponse = {
-  name: string;
-  email: string;
+  name: string | undefined;
+  email: string | undefined;
 };
 type CloudatCostMiningWalletTransaction = {
-  minerID: string;
-  packageID: string;
-  minerType: string;
-  amount: string;
-  date: string;
-  type: string;
+  minerID: string | undefined;
+  packageID: string | undefined;
+  minerType: string | undefined;
+  amount: string | undefined;
+  date: string | undefined;
+  type: string | undefined;
 };
 type CloudatCostMiningWalletResponse = {
   transactions: CloudatCostMiningWalletTransaction[];
@@ -40,7 +40,7 @@ type SheetsOSResponse = {
 const CAC_CONFIG_URL = "https://panel.cloudatcost.com/panel/_config";
 const CAC_URL = "https://panel.cloudatcost.com";
 const CAC_MINING = "https://mining.cloudatcocks.com";
-const CAC_OS_SHEET = (tab) =>
+const CAC_OS_SHEET = (tab: number) =>
   `https://spreadsheets.google.com/feeds/list/1DH8evGlJ8sZ6CU3Iy23TeHzMbfLV8bCQFmXtr7YwydQ/${tab}/public/values?alt=json`;
 
 const api = {
@@ -100,7 +100,7 @@ const api = {
         };
       });
     },
-    getCSRFToken: (): Promise<string> => {
+    getCSRFToken: (): Promise<string | undefined> => {
       return fetch(`${CAC_MINING}/login`)
         .then((resp) => resp.text())
         .then((text) => {
@@ -126,6 +126,13 @@ const api = {
       });
       // TODO: It seems a 409 is just thrown (even for valid requests)
     },
+    getCurrentBalance: (): Promise<string | undefined> => {
+      return fetch(`${CAC_MINING}/api/v1/payouts/bitcoin`)
+        .then((resp) => resp.text())
+        .then((text) => {
+          return text;
+        });
+    },
   },
   cloudatcost: {
     URL: CAC_URL,
@@ -148,7 +155,7 @@ const api = {
         };
       });
     },
-    getAccountID: (): Promise<string> => {
+    getAccountID: (): Promise<string | undefined> => {
       return fetch(`${CAC_URL}/script`)
         .then((resp) => resp.text())
         .then((text) => {
