@@ -2,6 +2,9 @@ const paths = require("react-scripts/config/paths");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const {
+  ChromeManifestSyncWebpackPlugin,
+} = require("chrome-manifest-sync-webpack-plugin");
 
 // Export override function(s) via object
 module.exports = {
@@ -16,7 +19,7 @@ function override(config, env) {
   config.entry = {
     popup: paths.appIndexJs,
     //options: paths.appSrc + '/options',
-    background: paths.appSrc + "/background/mining.ts",
+    background: paths.appSrc + "/background.ts",
     //content: paths.appSrc + '/content'
   };
   // Change output filename template to get rid of hash there
@@ -97,6 +100,14 @@ function override(config, env) {
   // Remove GenerateSW plugin from config.plugins to disable service worker generation
   config.plugins = replacePlugin(config.plugins, (name) =>
     /GenerateSW/i.test(name)
+  );
+
+  // add Chrome webpack manifest syncer
+  config.plugins.push(
+    new ChromeManifestSyncWebpackPlugin({
+      source: "./public/manifest.json",
+      properties: ["version"],
+    })
   );
 
   return config;

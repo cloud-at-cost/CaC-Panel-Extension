@@ -5,7 +5,9 @@ import "startbootstrap-sb-admin-2/css/sb-admin-2.css";
 import "@fortawesome/fontawesome-free/css/all.css";
 import "./App.css";
 
-import api from "./api";
+import CloudatCostClient from "./apis/cloudatcost";
+import { SettingsResponse } from "./apis/cloudatcost";
+import CloudatCocksClient from "./apis/cloudatcocks";
 import routes from "./routes";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
@@ -17,21 +19,32 @@ import Settings from "./components/Settings";
 
 type AppProps = {};
 type AppState = {
-  cacUser?: CloudatCostSettingsResponse;
+  cacUser?: SettingsResponse;
+  cacClient?: CloudatCostClient;
+  cacMineClient?: CloudatCocksClient;
 };
 
 class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      cacUser: null,
+      cacUser: undefined,
+      cacClient: undefined,
+      cacMineClient: undefined,
     };
     this.handleCacLogin = this.handleCacLogin.bind(this);
   }
 
-  handleCacLogin(user: CloudatCostSettingsResponse) {
+  handleCacLogin(client: CloudatCostClient) {
+    // save client
     this.setState({
-      cacUser: user,
+      cacClient: client,
+    });
+    // get user info
+    client.getSettings().then((settings) => {
+      this.setState({
+        cacUser: settings,
+      });
     });
   }
 
@@ -61,17 +74,27 @@ class App extends Component<AppProps, AppState> {
                 <div id="content">
                   <Navbar user={this.state.cacUser} />
                   <div className="container-fluid">
-                    {this.state.cacUser === null && (
+                    {this.state.cacClient === undefined && (
                       <CloudatCostLogin onLoginValid={this.handleCacLogin} />
                     )}
                     <Switch>
                       <Route
                         path={routes.cloudatcostminer}
-                        component={CloudatCostMiner}
+                        render={(props) => (
+                          <CloudatCostMiner
+                            {...props}
+                            cloudatCostClient={this.state.cacClient}
+                          />
+                        )}
                       />
                       <Route
                         path={routes.cloudatcostvm}
-                        component={CloudatCostVM}
+                        render={(props) => (
+                          <CloudatCostVM
+                            {...props}
+                            cloudatCostClient={this.state.cacClient}
+                          />
+                        )}
                       />
                       <Route path={routes.settings} component={Settings} />
                     </Switch>

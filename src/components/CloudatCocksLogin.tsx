@@ -1,8 +1,8 @@
 import { Component } from "react";
-import api from "../api";
+import CloudatCocksClient, { CAC_MINING } from "../apis/cloudatcocks";
 
 type CloudatCocksLoginProps = {
-  onLoginValid: () => void;
+  onLoginValid: (client: CloudatCocksClient) => void;
 };
 type CloudatCocksLoginState = {
   attemptedLogin: boolean;
@@ -17,7 +17,7 @@ class CloudatCocksLogin extends Component<
     super(props);
     this.state = {
       attemptedLogin: false,
-      error: null,
+      error: undefined,
     };
     this.checkLoggedIn = this.checkLoggedIn.bind(this);
   }
@@ -25,47 +25,49 @@ class CloudatCocksLogin extends Component<
   checkLoggedIn() {
     this.setState(
       {
-        error: null,
+        error: undefined,
       },
-      () => {
-        fetch(`${api.cloudatcocks.URL}/login`).then((resp) => {
-          // if we were redirected, they need to login!
-          if (resp.redirected === true) {
-            // get CSRF token for session
-            api.cloudatcocks.getCSRFToken().then((token) => {
-              // let parent know we're logged in
-              this.props.onLoginValid(token);
-            });
-          } else {
-            // attempt to login if we have saved credential
-            chrome.storage.local.get(
-              ["cacMineEmail", "cacMinePassword"],
-              (result) => {
-                if (result.cacMineEmail && result.cacMinePassword) {
-                  api.cloudatcocks.getCSRFToken().then((token) => {
-                    api.cloudatcocks
-                      .login(result.cacMineEmail, result.cacMinePassword, token)
-                      .then((user) => {
-                        if (user.valid) {
-                          this.checkLoggedIn();
-                        } else {
-                          this.setState({
-                            error: "Invalid saved credentials!",
-                            attemptedLogin: true,
-                          });
-                        }
-                      });
-                  });
-                } else {
-                  // mark attempt and wait for user
-                  this.setState({
-                    attemptedLogin: true,
-                  });
-                }
+      async () => {
+        chrome.storage.local.get(
+          ["cacMineEmail", "cacMinePassword"],
+          async (result) => {
+            let client = null;
+            if (result.cacMineEmail && result.cacMinePassword) {
+              client = new CloudatCocksClient(
+                result.cacMineEmail,
+                result.cacMinePassword
+              );
+            } else {
+              client = new CloudatCocksClient();
+            }
+            // check if we're logged in
+            let isLoggedIn = await client.isLoggedIn();
+
+            // if not logged in and we have credentials, try to with provided credentials
+            if (isLoggedIn === false && client.hasCredentials()) {
+              const valid = await client.login();
+              isLoggedIn = valid.valid;
+              if (isLoggedIn === false) {
+                this.setState({
+                  error:
+                    "Unable to login with the provided credentials, please verify they are correct and IP is whitelisted!",
+                  attemptedLogin: true,
+                });
               }
-            );
+            }
+
+            // if we're logged in, return the API client
+            if (isLoggedIn === true) {
+              this.props.onLoginValid(client);
+            } else {
+              this.setState({
+                error:
+                  "You do not have an active session or stored credentials.  Please verify on the website!",
+                attemptedLogin: true,
+              });
+            }
           }
-        });
+        );
       }
     );
   }
@@ -82,7 +84,7 @@ class CloudatCocksLogin extends Component<
           <div>
             <p>
               Please ensure you're logged in to the{" "}
-              <a href={api.cloudatcocks.URL} target="_blank">
+              <a href={CAC_MINING} target="_blank">
                 CloudatCocks Panel
               </a>{" "}
               and click the below button for verification
@@ -95,9 +97,10 @@ class CloudatCocksLogin extends Component<
             </button>
           </div>
         )}
-        {this.state.attemptedLogin === false && this.state.error === null && (
-          <p>Checking your login status with the CloudatCocks Panel...</p>
-        )}
+        {this.state.attemptedLogin === false &&
+          this.state.error === undefined && (
+            <p>Checking your login status with the CloudatCocks Panel...</p>
+          )}
       </div>
     );
   }

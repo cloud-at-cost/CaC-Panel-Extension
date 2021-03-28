@@ -1,10 +1,13 @@
 import { Component } from "react";
 import CloudatCocksLogin from "./CloudatCocksLogin";
-import api from "../api";
+import CloudatCocksClient from "../apis/cloudatcocks";
+import CloudatCostClient from "../apis/cloudatcost";
 
-type CloudatCostMinerProps = {};
+type CloudatCostMinerProps = {
+  cloudatCostClient?: CloudatCostClient;
+};
 type CloudatCostMinerState = {
-  cloudatCocksToken?: string;
+  cloudatCocksClient?: CloudatCocksClient;
   currentBalance?: string;
   payoutSubmitted: boolean;
   forwardTransactionTime: number;
@@ -19,12 +22,12 @@ class CloudatCostMiner extends Component<
   constructor(props: CloudatCostMinerProps) {
     super(props);
     this.state = {
-      cloudatCocksToken: null,
-      currentBalance: null,
+      cloudatCocksClient: undefined,
+      currentBalance: undefined,
       payoutSubmitted: false,
       forwardTransactionTime: 0,
-      forwardTransactionTimeStatus: null,
-      error: null,
+      forwardTransactionTimeStatus: undefined,
+      error: undefined,
     };
     this.getCurrentMinerStats = this.getCurrentMinerStats.bind(this);
     this.handleCloudatCocksLogin = this.handleCloudatCocksLogin.bind(this);
@@ -40,27 +43,31 @@ class CloudatCostMiner extends Component<
         });
       }
     });
-    this.handleGetCurrentBalance();
   }
 
   handleGetCurrentBalance() {
-    api.cloudatcocks.getCurrentBalance().then((balance) => {
+    this.state.cloudatCocksClient?.getCurrentBalance().then((balance) => {
       this.setState({
         currentBalance: balance,
       });
     });
   }
 
-  handleCloudatCocksLogin(token) {
-    this.setState({
-      cloudatCocksToken: token,
-    });
+  handleCloudatCocksLogin(client: CloudatCocksClient) {
+    this.setState(
+      {
+        cloudatCocksClient: client,
+      },
+      () => {
+        this.handleGetCurrentBalance();
+      }
+    );
   }
 
   handleSetBackgroundTime() {
     this.setState(
       {
-        forwardTransactionTimeStatus: null,
+        forwardTransactionTimeStatus: undefined,
       },
       () => {
         const time = this.state.forwardTransactionTime;
@@ -86,22 +93,24 @@ class CloudatCostMiner extends Component<
     this.setState(
       {
         payoutSubmitted: false,
-        error: null,
+        error: undefined,
       },
       () => {
-        api.cloudatcost.getMiningWalletDetails().then((wallet) => {
-          console.log("Found transactions:", wallet);
-          if (wallet.transactions.length > 0) {
-            api.cloudatcocks.savePayout(wallet, this.state.cloudatCocksToken);
-            this.setState({
-              payoutSubmitted: true,
-            });
-          } else {
-            this.setState({
-              error: "No transactions found!",
-            });
-          }
-        });
+        this.props.cloudatCostClient
+          ?.getMiningWalletDetails()
+          .then((wallet) => {
+            console.log("Found transactions:", wallet);
+            if (wallet.transactions.length > 0) {
+              this.state.cloudatCocksClient?.savePayout(wallet.transactions);
+              this.setState({
+                payoutSubmitted: true,
+              });
+            } else {
+              this.setState({
+                error: "No transactions found!",
+              });
+            }
+          });
       }
     );
   }
@@ -110,7 +119,7 @@ class CloudatCostMiner extends Component<
     return (
       <div className="row">
         <div className="col-md-12">
-          {this.state.cloudatCocksToken === null && (
+          {this.state.cloudatCocksClient === undefined && (
             <CloudatCocksLogin onLoginValid={this.handleCloudatCocksLogin} />
           )}
         </div>
@@ -122,18 +131,16 @@ class CloudatCostMiner extends Component<
               </h6>
             </div>
             <div className="card-body">
-              {this.state.currentBalance && (
-                <div className="text-center">
-                  <h3>
-                    ${this.state.currentBalance}
-                    <span> </span>
-                    <i
-                      className="fas fa-redo"
-                      onClick={() => this.handleGetCurrentBalance()}
-                    ></i>
-                  </h3>
-                </div>
-              )}
+              <div className="text-center">
+                <h3>
+                  {this.state.currentBalance && `$${this.state.currentBalance}`}
+                  <span> </span>
+                  <i
+                    className="fas fa-redo"
+                    onClick={() => this.handleGetCurrentBalance()}
+                  ></i>
+                </h3>
+              </div>
             </div>
           </div>
         </div>
@@ -155,7 +162,7 @@ class CloudatCostMiner extends Component<
                   or configure an interval in minutes to run this task in the
                   background (recommended to save your password in settings).
                 </p>
-                {this.state.cloudatCocksToken !== null && (
+                {this.state.cloudatCocksClient !== undefined && (
                   <div className="col-md-6 col-md-offset-3 text-center">
                     {this.state.error && (
                       <p className="text-center text-danger">
@@ -173,24 +180,31 @@ class CloudatCostMiner extends Component<
                         Your transactions have been forwarded to the panel...
                       </p>
                     )}
-                    <div className="input-group mt-3">
-                      <input
-                        className="form-control"
-                        type="number"
-                        value={this.state.forwardTransactionTime}
-                        onChange={(e) =>
-                          this.setState({
-                            forwardTransactionTime: parseInt(e.target.value),
-                          })
-                        }
-                      />
-                      <div className="input-group-append">
-                        <button
-                          className="btn btn-outline-primary"
-                          onClick={() => this.handleSetBackgroundTime()}
-                        >
-                          Save
-                        </button>
+                    <div className="form mt-3">
+                      <div className="form-group">
+                        <label>Sync Interval:</label>
+                        <div className="input-group">
+                          <input
+                            className="form-control"
+                            type="number"
+                            value={this.state.forwardTransactionTime}
+                            onChange={(e) =>
+                              this.setState({
+                                forwardTransactionTime: parseInt(
+                                  e.target.value
+                                ),
+                              })
+                            }
+                          />
+                          <div className="input-group-append">
+                            <button
+                              className="btn btn-outline-primary"
+                              onClick={() => this.handleSetBackgroundTime()}
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     {this.state.forwardTransactionTimeStatus && (

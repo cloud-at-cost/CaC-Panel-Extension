@@ -1,9 +1,10 @@
 import { Component } from "react";
 import { Link } from "react-router-dom";
 import routes from "../routes";
+import { SettingsResponse } from "../apis/cloudatcost";
 
 type NavbarProps = {
-  user?: CloudatCostSettingsResponse;
+  user?: SettingsResponse;
 };
 
 class Navbar extends Component<NavbarProps> {

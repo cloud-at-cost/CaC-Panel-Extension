@@ -55,19 +55,19 @@ class Settings extends Component<SettingsProps, SettingsState> {
     return (
       <div className="row">
         <div className="col-md-12">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">
+          <div className="card shadow mb-4">
+            <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 className="m-0 font-weight-bold text-primary">
                 CloudatCost Settings
               </h6>
             </div>
-            <div class="card-body">
+            <div className="card-body">
               <div className="form">
-                <div class="form-group">
-                  <label for="cacEmail">Email Address</label>
+                <div className="form-group">
+                  <label htmlFor="cacEmail">Email Address</label>
                   <input
                     type="email"
-                    class="form-control"
+                    className="form-control"
                     id="cacEmail"
                     placeholder="name@example.com"
                     value={this.state.cacEmail}
@@ -76,11 +76,11 @@ class Settings extends Component<SettingsProps, SettingsState> {
                     }
                   />
                 </div>
-                <div class="form-group">
-                  <label for="cacPassword">Password</label>
+                <div className="form-group">
+                  <label htmlFor="cacPassword">Password</label>
                   <input
                     type="password"
-                    class="form-control"
+                    className="form-control"
                     id="cacPassword"
                     onChange={(e) =>
                       this.setState({ cacPassword: e.target.value })
@@ -104,19 +104,19 @@ class Settings extends Component<SettingsProps, SettingsState> {
           </div>
         </div>
         <div className="col-md-12">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">
+          <div className="card shadow mb-4">
+            <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 className="m-0 font-weight-bold text-primary">
                 CloudatCocks Settings
               </h6>
             </div>
-            <div class="card-body">
+            <div className="card-body">
               <div className="form">
-                <div class="form-group">
-                  <label for="cacEmail">Email Address</label>
+                <div className="form-group">
+                  <label htmlFor="cacEmail">Email Address</label>
                   <input
                     type="email"
-                    class="form-control"
+                    className="form-control"
                     id="cacEmail"
                     placeholder="name@example.com"
                     value={this.state.cacMineEmail}
@@ -125,11 +125,11 @@ class Settings extends Component<SettingsProps, SettingsState> {
                     }
                   />
                 </div>
-                <div class="form-group">
-                  <label for="cacPassword">Password</label>
+                <div className="form-group">
+                  <label htmlFor="cacPassword">Password</label>
                   <input
                     type="password"
-                    class="form-control"
+                    className="form-control"
                     id="cacPassword"
                     onChange={(e) =>
                       this.setState({ cacMinePassword: e.target.value })

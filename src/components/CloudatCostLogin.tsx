@@ -1,8 +1,8 @@
 import { Component } from "react";
-import api from "../api";
+import CloudatCostClient, { CAC_URL } from "../apis/cloudatcost";
 
 type CloudatCostLoginProps = {
-  onLoginValid: () => void;
+  onLoginValid: (client: CloudatCostClient) => void;
 };
 type CloudatCostLoginState = {
   attemptedLogin: boolean;
@@ -17,7 +17,7 @@ class CloudatCostLogin extends Component<
     super(props);
     this.state = {
       attemptedLogin: false,
-      error: null,
+      error: undefined,
     };
     this.checkLoggedIn = this.checkLoggedIn.bind(this);
   }
@@ -25,44 +25,50 @@ class CloudatCostLogin extends Component<
   checkLoggedIn() {
     this.setState(
       {
-        error: null,
+        error: undefined,
       },
-      () => {
-        fetch(api.cloudatcost.URL).then((resp) => {
-          // if we were redirected, they need to login!
-          if (resp.redirected === true) {
-            // check if we have credentials already stored
-            chrome.storage.local.get(["cacEmail", "cacPassword"], (result) => {
-              if (result.cacEmail && result.cacPassword) {
-                // login for the user
-                api.cloudatcost
-                  .login(result.cacEmail, result.cacPassword)
-                  .then((resp) => {
-                    // check if valid login
-                    if (resp.valid) {
-                      this.checkLoggedIn();
-                    } else {
-                      this.setState({
-                        error:
-                          "Unable to login with the provided credentials, please verify they are correct and IP is whitelisted!",
-                        attemptedLogin: true,
-                      });
-                    }
-                  });
-              } else {
-                // mark attempt and wait for user
+      async () => {
+        // create client
+        chrome.storage.local.get(
+          ["cacEmail", "cacPassword"],
+          async (result) => {
+            let client = null;
+            if (result.cacEmail && result.cacPassword) {
+              client = new CloudatCostClient(
+                result.cacEmail,
+                result.cacPassword
+              );
+            } else {
+              client = new CloudatCostClient();
+            }
+            // check if we're logged in
+            let isLoggedIn = await client.isLoggedIn();
+
+            // if not logged in and we have credentials, try to with provided credentials
+            if (isLoggedIn === false && client.hasCredentials()) {
+              const valid = await client.login();
+              isLoggedIn = valid.valid;
+              if (isLoggedIn === false) {
                 this.setState({
+                  error:
+                    "Unable to login with the provided credentials, please verify they are correct and IP is whitelisted!",
                   attemptedLogin: true,
                 });
               }
-            });
-          } else {
-            // let parent know we're logged in
-            api.cloudatcost.getSettings().then((user) => {
-              this.props.onLoginValid(user);
-            });
+            }
+
+            // if we're logged in, return the API client
+            if (isLoggedIn === true) {
+              this.props.onLoginValid(client);
+            } else {
+              this.setState({
+                error:
+                  "You do not have an active session or stored credentials.  Please verify on the website!",
+                attemptedLogin: true,
+              });
+            }
           }
-        });
+        );
       }
     );
   }
@@ -79,7 +85,7 @@ class CloudatCostLogin extends Component<
           <div>
             <p>
               Please ensure you're logged in to the{" "}
-              <a href={api.cloudatcost.URL} target="_blank">
+              <a href={CAC_URL} target="_blank">
                 CloudatCost Panel
               </a>{" "}
               and click the below button for verification
@@ -92,9 +98,10 @@ class CloudatCostLogin extends Component<
             </button>
           </div>
         )}
-        {this.state.attemptedLogin === false && this.state.error === null && (
-          <p>Checking your login status with the CloudatCost Panel...</p>
-        )}
+        {this.state.attemptedLogin === false &&
+          this.state.error === undefined && (
+            <p>Checking your login status with the CloudatCost Panel...</p>
+          )}
       </div>
     );
   }

@@ -1,14 +1,16 @@
 import { Component } from "react";
-import api from "../api";
+import CloudatCostClient, { Server, CAC_URL } from "../apis/cloudatcost";
+import SheetsClient, { OS, OS_URL } from "../apis/sheets";
 
-type CloudatCostVMProps = {};
+type CloudatCostVMProps = {
+  cloudatCostClient?: CloudatCostClient;
+};
 type CloudatCostVMState = {
   error?: string;
-  accountID?: string;
   devVersion: string;
   injectionStatus?: string;
   serverID?: string;
-  servers: CloudatCostServersResponse;
+  servers: Server[];
   serverDeleteStatus?: string;
 };
 
@@ -16,25 +18,19 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
   constructor(props: CloudatCostVMProps) {
     super(props);
     this.state = {
-      error: null,
-      accountID: null,
+      error: undefined,
       devVersion: "1",
-      injectionStatus: null,
-      serverID: null,
+      injectionStatus: undefined,
+      serverID: undefined,
       servers: [],
-      serverDeleteStatus: null,
+      serverDeleteStatus: undefined,
     };
     this.handleInjectOS = this.handleInjectOS.bind(this);
     this.handleDeleteServer = this.handleDeleteServer.bind(this);
   }
 
   componentDidMount() {
-    api.cloudatcost.getAccountID().then((accountID) => {
-      this.setState({
-        accountID: accountID,
-      });
-    });
-    api.cloudatcost.getServers().then((resp) => {
+    this.props.cloudatCostClient?.getServers().then((resp) => {
       this.setState({
         servers: resp.servers,
       });
@@ -42,22 +38,21 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
   }
 
   handleDeleteServer() {
-    if (!this.state.serverID || !this.state.accountID) {
-      return;
-    }
     this.setState(
       {
-        serverDeleteStatus: null,
+        serverDeleteStatus: undefined,
       },
       () => {
-        api.cloudatcost
-          .deleteServer(this.state.accountID, this.state.serverID)
-          .then((resp) => {
-            this.setState({
-              serverID: null,
-              serverDeleteStatus: `Server with ID: ${this.state.serverID} was successfully deleted!`,
+        if (this.state.serverID) {
+          this.props.cloudatCostClient
+            ?.deleteServer(this.state.serverID)
+            .then((resp) => {
+              this.setState({
+                serverID: undefined,
+                serverDeleteStatus: `Server with ID: ${this.state.serverID} was successfully deleted!`,
+              });
             });
-          });
+        }
       }
     );
   }
@@ -65,24 +60,24 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
   handleInjectOS() {
     this.setState(
       {
-        error: null,
-        injectionStatus: null,
+        error: undefined,
+        injectionStatus: undefined,
       },
       () => {
         // check current tab URL
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const curTab = tabs[0];
-          if (curTab.url !== `${api.cloudatcost.URL}/build`) {
+          if (curTab.url !== `${CAC_URL}/build`) {
             this.setState({
               error:
                 "You're not on the build page!  Please ensure you're on the build page with CPU/RAM/OS/Storage etc and try again!",
             });
           } else {
             // get list of OSes
-            api.sheets.getOS(this.state.devVersion).then((resp) => {
+            new SheetsClient().getOS(this.state.devVersion).then((resp) => {
               let { oses } = resp;
               // add prefix to names for easier identification
-              oses = oses.map((os) => {
+              oses = oses.map((os: OS) => {
                 os.name = `V${this.state.devVersion} - ${os.name}`;
                 return os;
               });
@@ -110,8 +105,9 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
               }
               osString += "]";
               // inject to page
+              // @ts-expect-error
               chrome.tabs.executeScript(
-                null,
+                undefined,
                 {
                   code: `${osInjectFn}osInjectFn(${osString});`,
                 },
@@ -132,13 +128,13 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
     return (
       <div className="row">
         <div className="col-md-12">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">
+          <div className="card shadow mb-4">
+            <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 className="m-0 font-weight-bold text-primary">
                 Server Management
               </h6>
             </div>
-            <div class="card-body">
+            <div className="card-body">
               <div className="text-center">
                 <p className="lead">
                   Server deletion: This tool allows for you to delete servers in
@@ -183,11 +179,13 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
           </div>
         </div>
         <div className="col-md-12">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">OS Management</h6>
+          <div className="card shadow mb-4">
+            <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 className="m-0 font-weight-bold text-primary">
+                OS Management
+              </h6>
             </div>
-            <div class="card-body">
+            <div className="card-body">
               <div className="text-center">
                 {this.state.error && (
                   <p className="text-danger">{this.state.error}</p>
@@ -195,7 +193,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                 <p className="lead">
                   Hidden OS injection: This tools injects all hiddens OSes from
                   this{" "}
-                  <a href={api.sheets.OS_URL} target="_blank">
+                  <a href={OS_URL} target="_blank">
                     spreadsheet
                   </a>{" "}
                   into the build page for convenience
