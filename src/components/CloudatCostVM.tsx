@@ -105,8 +105,8 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
               }
               osString += "]";
               // inject to page
-              // @ts-expect-error
               chrome.tabs.executeScript(
+                // @ts-expect-error
                 undefined,
                 {
                   code: `${osInjectFn}osInjectFn(${osString});`,
