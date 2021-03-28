@@ -127,7 +127,7 @@ export class CloudatCostClient {
   async deleteServer(serverID: string) {
     // check if we need to get our account ID
     let accountID = this.accountID;
-    if (accountID === null) {
+    if (accountID === undefined) {
       accountID = await this.getAccountID();
     }
     return fetch(
