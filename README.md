@@ -9,12 +9,16 @@ This extension aims to help users with the CloudatCost panel and supplements som
 - Insertion of hidden/removed OSes on building pages
 - Grabs current transaction from CloudatCost mining and forwards to the C@C Minig panel
   - Assumes the miner is already setup
+- Automatic transaction forwarding to the C@C Mining panel
 
 ## Planned Features
 
-- Automatic transaction forwarding to the C@C Mining panel
 - Build to Google Chrome extension store (or at least an easier way of distribution)
 - Build to other browsers
+
+## Installation
+
+Grab the latest release [here](https://github.com/zack-hable/CaC-Panel-Extension/releases/latest) and download extension.zip. Then extract this somewhere on your machine aand open Chrome (or Chromium browser of choice). Navigate to the "extensions" area and enable "developer mode". Then select "load unpacked" and navigate to the decompressed files from above. If you're installing an update all you should need to do is extract to the same location and click the "reload" icon in the extensions page.
 
 ## Development
 

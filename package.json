@@ -1,9 +1,11 @@
 {
   "name": "cac-panel-extension",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
+    "@sentry/react": "^6.2.3",
+    "@sentry/tracing": "^6.2.3",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",

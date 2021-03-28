@@ -5,7 +5,13 @@ const forwardTransactions = async () => {
   console.log("Forwarding transactions...");
 
   chrome.storage.local.get(
-    ["cacEmail", "cacPassword", "cacMineEmail", "cacMinePassword"],
+    [
+      "cacEmail",
+      "cacPassword",
+      "cacMineEmail",
+      "cacMinePassword",
+      "forwardTransactionLogs",
+    ],
     async (result) => {
       console.log("Checking C@C login status...");
       const cacClient = new CloudatCostClient(
@@ -47,6 +53,19 @@ const forwardTransactions = async () => {
           cacMineClient.savePayout(wallet.transactions);
           console.log("Sync completed!");
         }
+        let logs = result.forwardTransactionLogs;
+        if (!logs) {
+          logs = [];
+        }
+        // save sync details
+        const log = {
+          time: new Date().toISOString(),
+          transactionCount: wallet.transactions.length,
+        };
+        logs.push(log);
+        // keep at most 100 recent logs
+        logs = logs.slice(Math.max(0, logs.length - 100), logs.length);
+        chrome.storage.local.set({ forwardTransactionLogs: logs });
       });
     }
   );

@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import * as Sentry from "@sentry/react";
+import { Integrations } from "@sentry/tracing";
 import { MemoryRouter as Router, Switch, Route } from "react-router-dom";
 import "bootstrap";
 import "startbootstrap-sb-admin-2/css/sb-admin-2.css";
@@ -16,6 +18,12 @@ import CloudatCostLogin from "./components/CloudatCostLogin";
 import CloudatCostMiner from "./components/CloudatCostMiner";
 import CloudatCostVM from "./components/CloudatCostVM";
 import Settings from "./components/Settings";
+
+Sentry.init({
+  dsn:
+    "https://001fb202beb844019394ff8e3f4bd5b7@o363751.ingest.sentry.io/5695853",
+  integrations: [new Integrations.BrowserTracing()],
+});
 
 type AppProps = {};
 type AppState = {

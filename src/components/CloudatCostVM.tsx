@@ -67,7 +67,10 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
         // check current tab URL
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const curTab = tabs[0];
-          if (curTab.url !== `${CAC_URL}/build`) {
+          if (
+            curTab.url !== `${CAC_URL}/build` &&
+            curTab.url !== `${CAC_URL}/index.php?view=build`
+          ) {
             this.setState({
               error:
                 "You're not on the build page!  Please ensure you're on the build page with CPU/RAM/OS/Storage etc and try again!",

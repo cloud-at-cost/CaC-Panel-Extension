@@ -12,6 +12,7 @@ type CloudatCostMinerState = {
   payoutSubmitted: boolean;
   forwardTransactionTime: number;
   forwardTransactionTimeStatus?: string;
+  forwardTransactionLogs: { time: string; transactionCount: number }[];
   error?: string;
 };
 
@@ -27,9 +28,11 @@ class CloudatCostMiner extends Component<
       payoutSubmitted: false,
       forwardTransactionTime: 0,
       forwardTransactionTimeStatus: undefined,
+      forwardTransactionLogs: [],
       error: undefined,
     };
     this.getCurrentMinerStats = this.getCurrentMinerStats.bind(this);
+    this.getCurrentTransactionLogs = this.getCurrentTransactionLogs.bind(this);
     this.handleCloudatCocksLogin = this.handleCloudatCocksLogin.bind(this);
     this.handleSetBackgroundTime = this.handleSetBackgroundTime.bind(this);
     this.handleGetCurrentBalance = this.handleGetCurrentBalance.bind(this);
@@ -43,14 +46,32 @@ class CloudatCostMiner extends Component<
         });
       }
     });
+    this.getCurrentTransactionLogs();
+  }
+
+  getCurrentTransactionLogs() {
+    chrome.storage.local.get(["forwardTransactionLogs"], (result) => {
+      if (result.forwardTransactionLogs) {
+        this.setState({
+          forwardTransactionLogs: result.forwardTransactionLogs.reverse(),
+        });
+      }
+    });
   }
 
   handleGetCurrentBalance() {
-    this.state.cloudatCocksClient?.getCurrentBalance().then((balance) => {
-      this.setState({
-        currentBalance: balance,
-      });
-    });
+    this.setState(
+      {
+        currentBalance: undefined,
+      },
+      () => {
+        this.state.cloudatCocksClient?.getCurrentBalance().then((balance) => {
+          this.setState({
+            currentBalance: balance,
+          });
+        });
+      }
+    );
   }
 
   handleCloudatCocksLogin(client: CloudatCocksClient) {
@@ -136,7 +157,9 @@ class CloudatCostMiner extends Component<
                   {this.state.currentBalance && `$${this.state.currentBalance}`}
                   <span> </span>
                   <i
-                    className="fas fa-redo"
+                    className={`fas fa-redo ${
+                      this.state.currentBalance === undefined ? "fa-spin" : ""
+                    }`}
                     onClick={() => this.handleGetCurrentBalance()}
                   ></i>
                 </h3>
@@ -182,7 +205,7 @@ class CloudatCostMiner extends Component<
                     )}
                     <div className="form mt-3">
                       <div className="form-group">
-                        <label>Sync Interval:</label>
+                        <label>Sync Interval (minutes):</label>
                         <div className="input-group">
                           <input
                             className="form-control"
@@ -203,6 +226,19 @@ class CloudatCostMiner extends Component<
                             >
                               Save
                             </button>
+                            {this.state.forwardTransactionTime > 0 && (
+                              <button
+                                className="btn btn-outline-danger"
+                                onClick={() =>
+                                  this.setState(
+                                    { forwardTransactionTime: 0 },
+                                    this.handleSetBackgroundTime
+                                  )
+                                }
+                              >
+                                Disable
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -216,6 +252,33 @@ class CloudatCostMiner extends Component<
                 )}
               </div>
             </div>
+            <h3 className="text-center">
+              Transaction Sync Log<span> </span>
+              <i
+                className="fas fa-redo"
+                onClick={() => this.getCurrentTransactionLogs()}
+              ></i>
+            </h3>
+            <table className="table table-striped col-10 offset-1">
+              <thead>
+                <tr>
+                  <th className="text-center" scope="col">
+                    Time
+                  </th>
+                  <th className="text-center" scope="col">
+                    Transactions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.forwardTransactionLogs.map((log) => (
+                  <tr key={log.time}>
+                    <td>{log.time}</td>
+                    <td>{log.transactionCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
