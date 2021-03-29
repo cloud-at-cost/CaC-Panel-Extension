@@ -82,7 +82,7 @@ export class CloudatCocksClient {
           method: "POST",
           body: JSON.stringify({
             payouts: payouts,
-            api: true
+            api: true,
           }),
           headers: {
             "X-CSRF-TOKEN": token,
