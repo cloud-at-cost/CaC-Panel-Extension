@@ -80,7 +80,10 @@ export class CloudatCocksClient {
       if (token) {
         return fetch(`${CAC_MINING}/payouts/create`, {
           method: "POST",
-          body: JSON.stringify(payouts),
+          body: JSON.stringify({
+            payouts: payouts,
+            api: true
+          }),
           headers: {
             "X-CSRF-TOKEN": token,
             "content-type": "application/json",
