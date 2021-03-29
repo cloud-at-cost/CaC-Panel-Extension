@@ -64,7 +64,7 @@ export class CloudatCostClient {
         body: formData,
       }).then((resp) => {
         // check where we're redirected to
-        if (resp.url === CAC_URL) {
+        if (resp.url === `${CAC_URL}/` || resp.url === CAC_URL) {
           this.loggedIn = true;
         }
         return {

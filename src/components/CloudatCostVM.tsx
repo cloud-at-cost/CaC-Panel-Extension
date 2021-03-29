@@ -1,6 +1,6 @@
 import { Component } from "react";
 import CloudatCostClient, { Server, CAC_URL } from "../apis/cloudatcost";
-import SheetsClient, { OS, OS_URL } from "../apis/sheets";
+import CloudatCocksClient, { OS } from "../apis/cloudatcocks";
 
 type CloudatCostVMProps = {
   cloudatCostClient?: CloudatCostClient;
@@ -77,16 +77,18 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
             });
           } else {
             // get list of OSes
-            new SheetsClient().getOS(this.state.devVersion).then((resp) => {
-              let { oses } = resp;
-              // add prefix to names for easier identification
-              oses = oses.map((os: OS) => {
-                os.name = `V${this.state.devVersion} - ${os.name}`;
-                return os;
-              });
-              // make function to handle injection
-              // FYI: This runs in the page itself, so we're limited to vanilla JS here
-              const osInjectFn = `
+            new CloudatCocksClient()
+              .getOSes(this.state.devVersion)
+              .then((resp) => {
+                let { oses } = resp;
+                // add prefix to names for easier identification
+                oses = oses.map((os: OS) => {
+                  os.name = `${this.state.devVersion} - ${os.name}`;
+                  return os;
+                });
+                // make function to handle injection
+                // FYI: This runs in the page itself, so we're limited to vanilla JS here
+                const osInjectFn = `
 						function osInjectFn(oses) {
 							// identify select to insert to
 							const osSelect = document.getElementsByName("os")[0];
@@ -102,25 +104,25 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
 							}
 						};
 						`;
-              let osString = "[";
-              for (let os of oses) {
-                osString += `{name:"${os.name}",id:"${os.id}"},`;
-              }
-              osString += "]";
-              // inject to page
-              chrome.tabs.executeScript(
-                // @ts-expect-error
-                undefined,
-                {
-                  code: `${osInjectFn}osInjectFn(${osString});`,
-                },
-                () => {
-                  this.setState({
-                    injectionStatus: `Successfully injected V${this.state.devVersion} OSes...`,
-                  });
+                let osString = "[";
+                for (let os of oses) {
+                  osString += `{name:"${os.name}",id:"${os.id}"},`;
                 }
-              );
-            });
+                osString += "]";
+                // inject to page
+                chrome.tabs.executeScript(
+                  // @ts-expect-error
+                  undefined,
+                  {
+                    code: `${osInjectFn}osInjectFn(${osString});`,
+                  },
+                  () => {
+                    this.setState({
+                      injectionStatus: `Successfully injected V${this.state.devVersion} OSes...`,
+                    });
+                  }
+                );
+              });
           }
         });
       }
@@ -195,11 +197,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                 )}
                 <p className="lead">
                   Hidden OS injection: This tools injects all hiddens OSes from
-                  this{" "}
-                  <a href={OS_URL} target="_blank">
-                    spreadsheet
-                  </a>{" "}
-                  into the build page for convenience
+                  the CloudatCocks OS DB into the build page for convenience
                 </p>
                 <p>
                   To use this tool, please login to the panel and get to the
@@ -215,9 +213,10 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                       this.setState({ devVersion: e.target.value })
                     }
                   >
-                    <option value="1">V1</option>
-                    <option value="3">V3</option>
-                    <option value="4">V4</option>
+                    <option value="v1">V1</option>
+                    <option value="v3">V3</option>
+                    <option value="v4">V4</option>
+                    <option value="mac">Mac</option>
                   </select>
                   <div className="input-group-append">
                     <button

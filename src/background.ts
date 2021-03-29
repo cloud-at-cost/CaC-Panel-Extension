@@ -47,10 +47,15 @@ const forwardTransactions = async () => {
       }
 
       // now handle request
-      cacClient.getMiningWalletDetails().then((wallet) => {
+      cacClient.getMiningWalletDetails().then(async (wallet) => {
         console.log("Found transactions:", wallet);
+        let transactionsAdded = 0;
         if (wallet.transactions.length > 0) {
-          cacMineClient.savePayout(wallet.transactions);
+          transactionsAdded = await cacMineClient
+            .savePayout(wallet.transactions)
+            .then((resp) => {
+              return resp.new;
+            });
           console.log("Sync completed!");
         }
         let logs = result.forwardTransactionLogs;
@@ -60,7 +65,7 @@ const forwardTransactions = async () => {
         // save sync details
         const log = {
           time: new Date().toISOString(),
-          transactionCount: wallet.transactions.length,
+          transactionCount: transactionsAdded,
         };
         logs.push(log);
         // keep at most 100 recent logs

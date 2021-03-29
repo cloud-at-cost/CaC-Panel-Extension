@@ -8,9 +8,22 @@ export type Payout = {
   date: string | undefined;
   type: string | undefined;
 };
-export type PayoutResponse = {};
+export type PayoutResponse = {
+  total: number;
+  successful: number;
+  failed: number;
+  new: number;
+  existing: number;
+};
 export type LoginResponse = {
   valid: boolean;
+};
+export type OS = {
+  name: string;
+  id: string;
+};
+export type OSResponse = {
+  oses: OS[];
 };
 
 export const CAC_MINING = "https://mining.cloudatcocks.com";
@@ -75,7 +88,7 @@ export class CloudatCocksClient {
       });
   }
 
-  savePayout(payouts: Payout[]): Promise<PayoutResponse | undefined> {
+  savePayout(payouts: Payout[]): Promise<PayoutResponse> {
     return this.getCSRFToken().then((token) => {
       if (token) {
         return fetch(`${CAC_MINING}/payouts/create`, {
@@ -88,17 +101,33 @@ export class CloudatCocksClient {
             "X-CSRF-TOKEN": token,
             "content-type": "application/json",
           },
-        });
+        })
+          .then((resp) => resp.json())
+          .then((json) => {
+            return json;
+          });
+      } else {
+        throw new Error("Unable to get CSRF token to make request");
       }
     });
-    // TODO: It seems a 409 is just thrown (even for valid requests)
   }
 
-  getCurrentBalance(): Promise<string | undefined> {
+  getCurrentBalance(): Promise<string> {
     return fetch(`${CAC_MINING}/api/v1/payouts/bitcoin`)
       .then((resp) => resp.text())
       .then((text) => {
         return text;
+      });
+  }
+
+  getOSes(devVersion: string): Promise<OSResponse> {
+    let URL = `https://mining.cloudatcocks.com/api/v1/platform/cloudpro-${devVersion}/operating-systems`;
+    return fetch(URL)
+      .then((resp) => resp.json())
+      .then((json) => {
+        return {
+          oses: json,
+        };
       });
   }
 }
