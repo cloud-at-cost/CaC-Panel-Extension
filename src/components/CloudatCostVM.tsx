@@ -9,9 +9,11 @@ type CloudatCostVMState = {
   error?: string;
   devVersion: string;
   injectionStatus?: string;
+  injectingOS: boolean;
   serverID?: string;
   servers: Server[];
   serverDeleteStatus?: string;
+  deletingServer: boolean;
 };
 
 class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
@@ -21,9 +23,11 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
       error: undefined,
       devVersion: "1",
       injectionStatus: undefined,
+      injectingOS: false,
       serverID: undefined,
       servers: [],
       serverDeleteStatus: undefined,
+      deletingServer: false,
     };
     this.handleInjectOS = this.handleInjectOS.bind(this);
     this.handleDeleteServer = this.handleDeleteServer.bind(this);
@@ -41,6 +45,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
     this.setState(
       {
         serverDeleteStatus: undefined,
+        deletingServer: true,
       },
       () => {
         if (this.state.serverID) {
@@ -50,6 +55,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
               this.setState({
                 serverID: undefined,
                 serverDeleteStatus: `Server with ID: ${this.state.serverID} was successfully deleted!`,
+                deletingServer: false,
               });
             });
         }
@@ -62,6 +68,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
       {
         error: undefined,
         injectionStatus: undefined,
+        injectingOS: true,
       },
       () => {
         // check current tab URL
@@ -74,6 +81,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
             this.setState({
               error:
                 "You're not on the build page!  Please ensure you're on the build page with CPU/RAM/OS/Storage etc and try again!",
+              injectingOS: false,
             });
           } else {
             // get list of OSes
@@ -119,6 +127,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                   () => {
                     this.setState({
                       injectionStatus: `Successfully injected V${this.state.devVersion} OSes...`,
+                      injectingOS: false,
                     });
                   }
                 );
@@ -167,10 +176,21 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                   </select>
                   <div className="input-group-append">
                     <button
-                      className="btn btn-outline-primary"
+                      className="btn btn-outline-danger"
                       onClick={() => this.handleDeleteServer()}
+                      disabled={this.state.deletingServer}
                     >
-                      Delete
+                      {this.state.deletingServer && (
+                        <span>
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          Deleting...
+                        </span>
+                      )}
+                      {!this.state.deletingServer && <span>Delete</span>}
                     </button>
                   </div>
                   {this.state.serverDeleteStatus && (
@@ -222,8 +242,19 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                     <button
                       className="btn btn-outline-primary"
                       onClick={() => this.handleInjectOS()}
+                      disabled={this.state.injectingOS}
                     >
-                      Inject
+                      {this.state.injectingOS && (
+                        <span>
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          Injecting...
+                        </span>
+                      )}
+                      {!this.state.injectingOS && <span>Inject</span>}
                     </button>
                   </div>
                 </div>

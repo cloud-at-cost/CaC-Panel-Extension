@@ -9,7 +9,8 @@ type CloudatCostMinerProps = {
 type CloudatCostMinerState = {
   cloudatCocksClient?: CloudatCocksClient;
   currentBalance?: string;
-  payoutSubmitted: boolean;
+  payoutSubmittedStatus?: string;
+  forwardingPayouts: boolean;
   forwardTransactionTime: number;
   forwardTransactionTimeStatus?: string;
   forwardTransactionLogs: { time: string; transactionCount: number }[];
@@ -25,13 +26,14 @@ class CloudatCostMiner extends Component<
     this.state = {
       cloudatCocksClient: undefined,
       currentBalance: undefined,
-      payoutSubmitted: false,
+      payoutSubmittedStatus: undefined,
+      forwardingPayouts: false,
       forwardTransactionTime: 0,
       forwardTransactionTimeStatus: undefined,
       forwardTransactionLogs: [],
       error: undefined,
     };
-    this.getCurrentMinerStats = this.getCurrentMinerStats.bind(this);
+    this.forwardPayouts = this.forwardPayouts.bind(this);
     this.getCurrentTransactionLogs = this.getCurrentTransactionLogs.bind(this);
     this.handleCloudatCocksLogin = this.handleCloudatCocksLogin.bind(this);
     this.handleSetBackgroundTime = this.handleSetBackgroundTime.bind(this);
@@ -110,25 +112,30 @@ class CloudatCostMiner extends Component<
     );
   }
 
-  getCurrentMinerStats() {
+  forwardPayouts() {
     this.setState(
       {
-        payoutSubmitted: false,
+        payoutSubmittedStatus: undefined,
+        forwardingPayouts: true,
         error: undefined,
       },
       () => {
         this.props.cloudatCostClient
           ?.getMiningWalletDetails()
           .then((wallet) => {
-            console.log("Found transactions:", wallet);
             if (wallet.transactions.length > 0) {
-              this.state.cloudatCocksClient?.savePayout(wallet.transactions);
-              this.setState({
-                payoutSubmitted: true,
-              });
+              this.state.cloudatCocksClient
+                ?.savePayout(wallet.transactions)
+                .then((resp) => {
+                  this.setState({
+                    payoutSubmittedStatus: `Successfully forwarded ${resp.new} new transactions to panel (found ${wallet.transactions.length} total).`,
+                    forwardingPayouts: false,
+                  });
+                });
             } else {
               this.setState({
                 error: "No transactions found!",
+                forwardingPayouts: false,
               });
             }
           });
@@ -194,13 +201,26 @@ class CloudatCostMiner extends Component<
                     )}
                     <button
                       className="btn btn-primary"
-                      onClick={() => this.getCurrentMinerStats()}
+                      onClick={() => this.forwardPayouts()}
+                      disabled={this.state.forwardingPayouts}
                     >
-                      Forward Transactions to Panel
+                      {this.state.forwardingPayouts && (
+                        <span>
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          Forwarding...
+                        </span>
+                      )}
+                      {!this.state.forwardingPayouts && (
+                        <span>Forward Transactions to Panel</span>
+                      )}
                     </button>
-                    {this.state.payoutSubmitted === true && (
+                    {this.state.payoutSubmittedStatus && (
                       <p className="text-success">
-                        Your transactions have been forwarded to the panel...
+                        {this.state.payoutSubmittedStatus}
                       </p>
                     )}
                     <div className="form mt-3">
