@@ -12,6 +12,7 @@ type CloudatCostMinerState = {
   payoutSubmittedStatus?: string;
   forwardingPayouts: boolean;
   forwardTransactionTime: number;
+  forwardTransactionAlarm?: chrome.alarms.Alarm;
   forwardTransactionTimeStatus?: string;
   forwardTransactionLogs: { time: string; transactionCount: number }[];
   error?: string;
@@ -29,6 +30,7 @@ class CloudatCostMiner extends Component<
       payoutSubmittedStatus: undefined,
       forwardingPayouts: false,
       forwardTransactionTime: 0,
+      forwardTransactionAlarm: undefined,
       forwardTransactionTimeStatus: undefined,
       forwardTransactionLogs: [],
       error: undefined,
@@ -47,6 +49,11 @@ class CloudatCostMiner extends Component<
           forwardTransactionTime: result.forwardTransactionTime,
         });
       }
+    });
+    chrome.alarms.get("forwardTransactions", (alarm) => {
+      this.setState({
+        forwardTransactionAlarm: alarm,
+      });
     });
     this.getCurrentTransactionLogs();
   }
@@ -101,8 +108,16 @@ class CloudatCostMiner extends Component<
             chrome.alarms.create("forwardTransactions", {
               periodInMinutes: time,
             });
+            chrome.alarms.get("forwardTransactions", (alarm) => {
+              this.setState({
+                forwardTransactionAlarm: alarm,
+              });
+            });
           } else {
             chrome.alarms.clear("forwardTransactions");
+            this.setState({
+              forwardTransactionAlarm: undefined,
+            });
           }
           this.setState({
             forwardTransactionTimeStatus: `Successfully set forward transaction interval to every ${time} minutes.`,
@@ -132,6 +147,8 @@ class CloudatCostMiner extends Component<
                     forwardingPayouts: false,
                   });
                 });
+              // update current balance too
+              this.handleGetCurrentBalance();
             } else {
               this.setState({
                 error: "No transactions found!",
@@ -224,6 +241,14 @@ class CloudatCostMiner extends Component<
                       </p>
                     )}
                     <div className="form mt-3">
+                      {this.state.forwardTransactionAlarm && (
+                        <p>
+                          Next scheduled sync:{" "}
+                          {new Date(
+                            this.state.forwardTransactionAlarm.scheduledTime
+                          ).toISOString()}
+                        </p>
+                      )}
                       <div className="form-group">
                         <label>Sync Interval (minutes):</label>
                         <div className="input-group">

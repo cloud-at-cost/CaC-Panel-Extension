@@ -21,7 +21,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
     super(props);
     this.state = {
       error: undefined,
-      devVersion: "1",
+      devVersion: "v1",
       injectionStatus: undefined,
       injectingOS: false,
       serverID: undefined,
@@ -126,7 +126,7 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                   },
                   () => {
                     this.setState({
-                      injectionStatus: `Successfully injected V${this.state.devVersion} OSes...`,
+                      injectionStatus: `Successfully injected ${this.state.devVersion} OSes...`,
                       injectingOS: false,
                     });
                   }
@@ -220,10 +220,12 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                   the CloudatCocks OS DB into the build page for convenience
                 </p>
                 <p>
-                  To use this tool, please login to the panel and get to the
-                  build server page (where OS/CPU/RAM/etc. are listed), select
-                  the developer version of OSes you want to inject and then
-                  click "Inject"
+                  To use this tool, please login to the panel and get to the{" "}
+                  <a href={`${CAC_URL}/build`} target="_blank">
+                    build server page
+                  </a>{" "}
+                  (where OS/CPU/RAM/etc. are listed), select the developer
+                  version of OSes you want to inject and then click "Inject"
                 </p>
                 <div className="input-group">
                   <select
