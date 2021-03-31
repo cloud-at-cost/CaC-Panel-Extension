@@ -10,9 +10,15 @@ class Sidebar extends Component {
         className="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion"
         id="accordionSidebar"
       >
-        <a href="#" className="sidebar-brand d-flex align-items-center justify-content-center">
+        <a
+          href="#"
+          className="sidebar-brand d-flex align-items-center justify-content-center"
+        >
           <div className="sidebar-brand-icon">
-            <img src={chrome.runtime.getURL("cac_logo.png")} alt="CloudAtCost" />
+            <img
+              src={chrome.runtime.getURL("cac_logo.png")}
+              alt="CloudAtCost"
+            />
           </div>
           <div className="sidebar-brand-text mx-3">C@C Panel Helper</div>
         </a>

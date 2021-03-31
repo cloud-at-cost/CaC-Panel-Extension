@@ -7,7 +7,6 @@ type CloudatCostVMProps = {
 };
 type CloudatCostVMState = {
   error?: string;
-  devVersion: string;
   injectionStatus?: string;
   injectingOS: boolean;
   serverID?: string;
@@ -19,39 +18,38 @@ type CloudatCostVMState = {
 type CloudAtCostPlatform = {
   code: string;
   name: string;
-}
+};
 
 const platforms: CloudAtCostPlatform[] = [
   {
-    code: 'v1',
-    name: 'V1',
+    code: "v1",
+    name: "V1",
   },
   {
-    code: 'v3',
-    name: 'V3',
+    code: "v3",
+    name: "V3",
   },
   {
-    code: 'v4',
-    name: 'V4',
+    code: "v4",
+    name: "V4",
   },
   {
-    code: 'mac',
-    name: 'Mac',
-  }
+    code: "mac",
+    name: "Mac",
+  },
 ];
 
 type CloudAtCostOperatingSystem = {
   id: string;
   platform: string;
   name: string;
-}
+};
 
 class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
   constructor(props: CloudatCostVMProps) {
     super(props);
     this.state = {
       error: undefined,
-      devVersion: "v1",
       injectionStatus: undefined,
       injectingOS: false,
       serverID: undefined,
@@ -102,54 +100,51 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
       },
       () => {
         // check current tab URL
-        chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-          const curTab = tabs[0];
-          if (
-            curTab.url !== `${CAC_URL}/build` &&
-            curTab.url !== `${CAC_URL}/index.php?view=build`
-          ) {
-            this.setState({
-              error:
-                "You're not on the build page!  Please ensure you're on the build page with CPU/RAM/OS/Storage etc and try again!",
-              injectingOS: false,
-            });
-          } else {
-            const client = new CloudatCocksClient();
-            const promises: Promise<any>[] = [];
-            let operatingSystems: CloudAtCostOperatingSystem[] = [];
-
-            // get list of OSes
-            platforms
-              .forEach((platform: CloudAtCostPlatform) => {
-                promises.push(
-                  client
-                    .getOSes(platform.code)
-                    .then((resp) => {
-                      console.log(platform)
-                        let { oses } = resp;
-                        // add prefix to names for easier identification
-                        oses.forEach((os: OS) => {
-                          operatingSystems.push({
-                            id: os.id,
-                            name: os.name,
-                            platform: platform.code,
-                          });
-                        });
-                    })
-                  );
+        chrome.tabs.query(
+          { active: true, currentWindow: true },
+          async (tabs) => {
+            const curTab = tabs[0];
+            if (
+              curTab.url !== `${CAC_URL}/build` &&
+              curTab.url !== `${CAC_URL}/index.php?view=build`
+            ) {
+              this.setState({
+                error:
+                  "You're not on the build page!  Please ensure you're on the build page with CPU/RAM/OS/Storage etc and try again!",
+                injectingOS: false,
               });
-            await Promise.all(promises);
-            
+            } else {
+              const client = new CloudatCocksClient();
+              const promises: Promise<any>[] = [];
+              let operatingSystems: CloudAtCostOperatingSystem[] = [];
+
+              // get list of OSes
+              platforms.forEach((platform: CloudAtCostPlatform) => {
+                promises.push(
+                  client.getOSes(platform.code).then((resp) => {
+                    let { oses } = resp;
+                    // add prefix to names for easier identification
+                    oses.forEach((os: OS) => {
+                      operatingSystems.push({
+                        id: os.id,
+                        name: os.name,
+                        platform: platform.code,
+                      });
+                    });
+                  })
+                );
+              });
+              await Promise.all(promises);
+
               operatingSystems = operatingSystems.sort((a, b) => {
-                if(a.platform < b.platform) {
+                if (a.platform < b.platform) {
                   return -1;
-                }
-                else if(a.platform > b.platform) {
+                } else if (a.platform > b.platform) {
                   return 1;
                 }
 
                 return a.name < b.name ? -1 : 1;
-              })
+              });
 
               // make function to handle injection
               // FYI: This runs in the page itself, so we're limited to vanilla JS here
@@ -188,8 +183,9 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                   });
                 }
               );
+            }
           }
-        });
+        );
       }
     );
   }
