@@ -7,7 +7,6 @@ type CloudatCostVMProps = {
 };
 type CloudatCostVMState = {
   error?: string;
-  devVersion: string;
   injectionStatus?: string;
   injectingOS: boolean;
   serverID?: string;
@@ -16,12 +15,41 @@ type CloudatCostVMState = {
   deletingServer: boolean;
 };
 
+type CloudAtCostPlatform = {
+  code: string;
+  name: string;
+};
+
+const platforms: CloudAtCostPlatform[] = [
+  {
+    code: "v1",
+    name: "V1",
+  },
+  {
+    code: "v3",
+    name: "V3",
+  },
+  {
+    code: "v4",
+    name: "V4",
+  },
+  {
+    code: "mac",
+    name: "Mac",
+  },
+];
+
+type CloudAtCostOperatingSystem = {
+  id: string;
+  platform: string;
+  name: string;
+};
+
 class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
   constructor(props: CloudatCostVMProps) {
     super(props);
     this.state = {
       error: undefined,
-      devVersion: "v1",
       injectionStatus: undefined,
       injectingOS: false,
       serverID: undefined,
@@ -72,68 +100,92 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
       },
       () => {
         // check current tab URL
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          const curTab = tabs[0];
-          if (
-            curTab.url !== `${CAC_URL}/build` &&
-            curTab.url !== `${CAC_URL}/index.php?view=build`
-          ) {
-            this.setState({
-              error:
-                "You're not on the build page!  Please ensure you're on the build page with CPU/RAM/OS/Storage etc and try again!",
-              injectingOS: false,
-            });
-          } else {
-            // get list of OSes
-            new CloudatCocksClient()
-              .getOSes(this.state.devVersion)
-              .then((resp) => {
-                let { oses } = resp;
-                // add prefix to names for easier identification
-                oses = oses.map((os: OS) => {
-                  os.name = `${this.state.devVersion} - ${os.name}`;
-                  return os;
-                });
-                // make function to handle injection
-                // FYI: This runs in the page itself, so we're limited to vanilla JS here
-                const osInjectFn = `
-						function osInjectFn(oses) {
-							// identify select to insert to
-							const osSelect = document.getElementsByName("os")[0];
-							if (!osSelect) {
-								alert("Unable to identify OS selection input!");
-							}
-							// create each OS option and append to select
-							for (let os of oses) {
-								const option = document.createElement("option");
-								option.value = os.id;
-								option.text = os.name;
-								osSelect.appendChild(option);
-							}
-						};
-						`;
-                let osString = "[";
-                for (let os of oses) {
-                  osString += `{name:"${os.name}",id:"${os.id}"},`;
-                }
-                osString += "]";
-                // inject to page
-                chrome.tabs.executeScript(
-                  // @ts-expect-error
-                  undefined,
-                  {
-                    code: `${osInjectFn}osInjectFn(${osString});`,
-                  },
-                  () => {
-                    this.setState({
-                      injectionStatus: `Successfully injected ${this.state.devVersion} OSes...`,
-                      injectingOS: false,
+        chrome.tabs.query(
+          { active: true, currentWindow: true },
+          async (tabs) => {
+            const curTab = tabs[0];
+            if (
+              curTab.url !== `${CAC_URL}/build` &&
+              curTab.url !== `${CAC_URL}/index.php?view=build`
+            ) {
+              this.setState({
+                error:
+                  "You're not on the build page!  Please ensure you're on the build page with CPU/RAM/OS/Storage etc and try again!",
+                injectingOS: false,
+              });
+            } else {
+              const client = new CloudatCocksClient();
+              const promises: Promise<any>[] = [];
+              let operatingSystems: CloudAtCostOperatingSystem[] = [];
+
+              // get list of OSes
+              platforms.forEach((platform: CloudAtCostPlatform) => {
+                promises.push(
+                  client.getOSes(platform.code).then((resp) => {
+                    let { oses } = resp;
+                    // add prefix to names for easier identification
+                    oses.forEach((os: OS) => {
+                      operatingSystems.push({
+                        id: os.id,
+                        name: os.name,
+                        platform: platform.code,
+                      });
                     });
-                  }
+                  })
                 );
               });
+              await Promise.all(promises);
+
+              operatingSystems = operatingSystems.sort((a, b) => {
+                if (a.platform < b.platform) {
+                  return -1;
+                } else if (a.platform > b.platform) {
+                  return 1;
+                }
+
+                return a.name < b.name ? -1 : 1;
+              });
+
+              // make function to handle injection
+              // FYI: This runs in the page itself, so we're limited to vanilla JS here
+              const osInjectFn = `
+          function osInjectFn(oses) {
+            // identify select to insert to
+            const osSelect = document.getElementsByName("os")[0];
+            if (!osSelect) {
+              alert("Unable to identify OS selection input!");
+            }
+            // create each OS option and append to select
+            for (let os of oses) {
+              const option = document.createElement("option");
+              option.value = os.id;
+              option.text = os.name;
+              osSelect.appendChild(option);
+            }
+          };
+          `;
+              let osString = "[";
+              for (let os of operatingSystems) {
+                osString += `{name:"${os.platform} - ${os.name}",id:"${os.id}"},`;
+              }
+              osString += "]";
+              // inject to page
+              chrome.tabs.executeScript(
+                // @ts-expect-error
+                undefined,
+                {
+                  code: `${osInjectFn}osInjectFn(${osString});`,
+                },
+                () => {
+                  this.setState({
+                    injectionStatus: `Successfully injected Operating Systems...`,
+                    injectingOS: false,
+                  });
+                }
+              );
+            }
           }
-        });
+        );
       }
     );
   }
@@ -207,7 +259,10 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
           <div className="card shadow mb-4">
             <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
               <h6 className="m-0 font-weight-bold text-primary">
-                OS Management
+                <a href={`${CAC_URL}/build`} target="_blank" rel="noreferrer">
+                  OS Management &nbsp;
+                  <i className="fas fa-external-link-alt"></i>
+                </a>
               </h6>
             </div>
             <div className="card-body">
@@ -221,44 +276,30 @@ class CloudatCostVM extends Component<CloudatCostVMProps, CloudatCostVMState> {
                 </p>
                 <p>
                   To use this tool, please login to the panel and get to the{" "}
-                  <a href={`${CAC_URL}/build`} target="_blank">
+                  <a href={`${CAC_URL}/build`} target="_blank" rel="noreferrer">
                     build server page
                   </a>{" "}
                   (where OS/CPU/RAM/etc. are listed), select the developer
                   version of OSes you want to inject and then click "Inject"
                 </p>
                 <div className="input-group">
-                  <select
-                    className="custom-select"
-                    value={this.state.devVersion}
-                    onChange={(e) =>
-                      this.setState({ devVersion: e.target.value })
-                    }
+                  <button
+                    className="btn btn-outline-primary w-100"
+                    onClick={() => this.handleInjectOS()}
+                    disabled={this.state.injectingOS}
                   >
-                    <option value="v1">V1</option>
-                    <option value="v3">V3</option>
-                    <option value="v4">V4</option>
-                    <option value="mac">Mac</option>
-                  </select>
-                  <div className="input-group-append">
-                    <button
-                      className="btn btn-outline-primary"
-                      onClick={() => this.handleInjectOS()}
-                      disabled={this.state.injectingOS}
-                    >
-                      {this.state.injectingOS && (
-                        <span>
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          Injecting...
-                        </span>
-                      )}
-                      {!this.state.injectingOS && <span>Inject</span>}
-                    </button>
-                  </div>
+                    {this.state.injectingOS && (
+                      <span>
+                        <span
+                          className="spinner-border spinner-border-sm"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        Injecting...
+                      </span>
+                    )}
+                    {!this.state.injectingOS && <span>Inject</span>}
+                  </button>
                 </div>
                 {this.state.injectionStatus && (
                   <p className="text-success">{this.state.injectionStatus}</p>

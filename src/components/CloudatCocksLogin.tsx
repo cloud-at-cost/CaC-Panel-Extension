@@ -84,7 +84,7 @@ class CloudatCocksLogin extends Component<
           <div>
             <p>
               Please ensure you're logged in to the{" "}
-              <a href={CAC_MINING} target="_blank">
+              <a href={CAC_MINING} target="_blank" rel="noreferrer">
                 CloudatCocks Panel
               </a>{" "}
               and click the below button for verification

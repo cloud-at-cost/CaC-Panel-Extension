@@ -94,7 +94,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name == "forwardTransactions") {
+  if (alarm.name === "forwardTransactions") {
     forwardTransactions();
   }
 });
