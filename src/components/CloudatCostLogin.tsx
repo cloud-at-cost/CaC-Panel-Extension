@@ -85,7 +85,7 @@ class CloudatCostLogin extends Component<
           <div>
             <p>
               Please ensure you're logged in to the{" "}
-              <a href={CAC_URL} target="_blank">
+              <a href={CAC_URL} target="_blank" rel="noreferrer">
                 CloudatCost Panel
               </a>{" "}
               and click the below button for verification
