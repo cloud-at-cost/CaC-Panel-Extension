@@ -2,6 +2,8 @@
 
 This extension aims to help users with the CloudatCost panel and supplements some of their features as well integrates with other services.
 
+Available via [Chrome Web Store](https://chrome.google.com/webstore/detail/cc-panel-extension/nfbammmblghfpjalpefjjgdiackccmca) and [Firefox Addons](https://addons.mozilla.org/en-US/firefox/addon/c-c-panel-extension)
+
 ## Current Features
 
 - Login to the CloudatCost and CloudatCock Panels
@@ -13,8 +15,7 @@ This extension aims to help users with the CloudatCost panel and supplements som
 
 ## Planned Features
 
-- Build to Google Chrome extension store (or at least an easier way of distribution)
-- Build to other browsers
+- Crowdsource available OS list
 
 ## Installation
 
