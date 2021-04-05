@@ -110,6 +110,10 @@ function override(config, env) {
     })
   );
 
+  // disable eval usage
+  config.devtool = "cheap-module-source-map";
+  config.node = false;
+
   return config;
 }
 

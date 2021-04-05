@@ -1,4 +1,4 @@
-# C@C Panel Helper Google Chrome Extension
+# C@C Panel Helper Browser Extension
 
 This extension aims to help users with the CloudatCost panel and supplements some of their features as well integrates with other services.
 

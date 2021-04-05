@@ -1,6 +1,6 @@
 {
   "name": "C@C Panel Extension",
-  "description": "CloudAtCost Panel Helper Extension for Chrome",
+  "description": "CloudAtCost Panel Helper Extension",
   "version": "1.0",
   "manifest_version": 2,
   "browser_action": {
@@ -14,7 +14,6 @@
     "16": "cac_icon16.png",
     "64": "cac_icon64.png"
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "permissions": [
     "https://panel.cloudatcost.com/",
     "https://mining.cloudatcocks.com/",
