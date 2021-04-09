@@ -1,1 +1,3 @@
 theme: jekyll-theme-slate
+site.title: CloudAtCost Panel Extension
+site.description: A Chrome and Firefox extension to help with server building and mining analytics.

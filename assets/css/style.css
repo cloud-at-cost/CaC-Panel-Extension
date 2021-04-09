@@ -1,0 +1,38 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+.download_banner {
+	position: absolute;
+	top: 0;
+	right: 10px;
+}
+.base_banner {
+	display: block;
+	position: initial;
+	float: right;
+	top: 0;
+	margin-left: 10px;
+	float: left;
+	right: 10px;
+	z-index: 10;
+	padding: 10px 50px 10px 10px;
+	color: #fff;
+	font-weight: 700;
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	margin-left: 10px;
+}
+.forkme_banner {
+	background: url("../images/blacktocat.png") #0090ff no-repeat 95% 50%;
+}
+.chrome_banner {
+	background: url("../images/chrome_web.png") #0090ff no-repeat 95% 50%;
+	background-size: 30px 30px;
+}
+.firefox_banner {
+	background: url("../images/firefox_addons.png") #0090ff no-repeat 95% 50%;
+	background-size: 30px 30px;
+}
