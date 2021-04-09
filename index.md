@@ -9,3 +9,17 @@ The current release (V0.1) allows you to do the following:
 
 ## Installation
 Either grab the latest release [here](https://github.com/zack-hable/CaC-Panel-Extension/releases/latest) or refer to the above available released copies on the Chrome Web Store and Firefox Addons store.
+
+## Screenshots
+
+### Hidden OS Injection
+![OS Injection](assets/images/os_inject.png)
+
+### Install Pending Server Deletion (or any server)
+![OS Injection](assets/images/vm_delete.png)
+
+### Mining Wallet Sync and Current Balance
+![OS Injection](assets/images/mining_sync.png)
+
+### Mining Wallet Syncing Log
+![OS Injection](assets/images/mining_sync_log.png)
