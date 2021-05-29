@@ -1,12 +1,12 @@
 import { Component } from "react";
+import CloudatCostWalletLogin from "./CloudatCostWalletLogin";
 import CloudatCocksLogin from "./CloudatCocksLogin";
 import CloudatCocksClient from "../apis/cloudatcocks";
-import CloudatCostClient from "../apis/cloudatcost";
+import CloudatCostWalletClient from "../apis/cloudatcostwallet";
 
-type CloudatCostMinerProps = {
-  cloudatCostClient?: CloudatCostClient;
-};
+type CloudatCostMinerProps = {};
 type CloudatCostMinerState = {
+  cloudatCostWalletClient?: CloudatCostWalletClient;
   cloudatCocksClient?: CloudatCocksClient;
   currentBalance?: string;
   payoutSubmittedStatus?: string;
@@ -25,6 +25,7 @@ class CloudatCostMiner extends Component<
   constructor(props: CloudatCostMinerProps) {
     super(props);
     this.state = {
+      cloudatCostWalletClient: undefined,
       cloudatCocksClient: undefined,
       currentBalance: undefined,
       payoutSubmittedStatus: undefined,
@@ -37,6 +38,9 @@ class CloudatCostMiner extends Component<
     };
     this.forwardPayouts = this.forwardPayouts.bind(this);
     this.getCurrentTransactionLogs = this.getCurrentTransactionLogs.bind(this);
+    this.handleCloudatCostWalletLogin = this.handleCloudatCostWalletLogin.bind(
+      this
+    );
     this.handleCloudatCocksLogin = this.handleCloudatCocksLogin.bind(this);
     this.handleSetBackgroundTime = this.handleSetBackgroundTime.bind(this);
     this.handleGetCurrentBalance = this.handleGetCurrentBalance.bind(this);
@@ -81,6 +85,12 @@ class CloudatCostMiner extends Component<
         });
       }
     );
+  }
+
+  handleCloudatCostWalletLogin(client: CloudatCostWalletClient) {
+    this.setState({
+      cloudatCostWalletClient: client,
+    });
   }
 
   handleCloudatCocksLogin(client: CloudatCocksClient) {
@@ -135,7 +145,7 @@ class CloudatCostMiner extends Component<
         error: undefined,
       },
       () => {
-        this.props.cloudatCostClient
+        this.state.cloudatCostWalletClient
           ?.getMiningWalletDetails()
           .then((wallet) => {
             if (wallet.transactions.length > 0) {
@@ -164,6 +174,11 @@ class CloudatCostMiner extends Component<
     return (
       <div className="row">
         <div className="col-md-12">
+          {this.state.cloudatCostWalletClient === undefined && (
+            <CloudatCostWalletLogin
+              onLoginValid={this.handleCloudatCostWalletLogin}
+            />
+          )}
           {this.state.cloudatCocksClient === undefined && (
             <CloudatCocksLogin onLoginValid={this.handleCloudatCocksLogin} />
           )}
