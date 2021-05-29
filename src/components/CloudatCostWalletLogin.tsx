@@ -43,7 +43,6 @@ class CloudatCostWalletLogin extends Component<
             } else {
               client = new CloudatCostWalletClient();
             }
-            console.log(client);
             // check if we're logged in
             let isLoggedIn = await client.isLoggedIn();
 
