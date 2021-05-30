@@ -88,12 +88,7 @@ class App extends Component<AppProps, AppState> {
                     <Switch>
                       <Route
                         path={routes.cloudatcostminer}
-                        render={(props) => (
-                          <CloudatCostMiner
-                            {...props}
-                            cloudatCostClient={this.state.cacClient}
-                          />
-                        )}
+                        render={(props) => <CloudatCostMiner {...props} />}
                       />
                       <Route
                         path={routes.cloudatcostvm}

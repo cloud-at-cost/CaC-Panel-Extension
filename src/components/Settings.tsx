@@ -5,6 +5,9 @@ type SettingsState = {
   cacEmail: string;
   cacPassword: string;
   cacSaved: boolean;
+  cacWalletEmail: string;
+  cacWalletPassword: string;
+  cacWalletSaved: boolean;
   cacMineEmail: string;
   cacMinePassword: string;
   cacMineSaved: boolean;
@@ -17,11 +20,15 @@ class Settings extends Component<SettingsProps, SettingsState> {
       cacEmail: "",
       cacPassword: "",
       cacSaved: false,
+      cacWalletEmail: "",
+      cacWalletPassword: "",
+      cacWalletSaved: false,
       cacMineEmail: "",
       cacMinePassword: "",
       cacMineSaved: false,
     };
     this.handleSaveCac = this.handleSaveCac.bind(this);
+    this.handleSaveCacWallet = this.handleSaveCacWallet.bind(this);
     this.handleSaveCacMine = this.handleSaveCacMine.bind(this);
   }
 
@@ -29,26 +36,38 @@ class Settings extends Component<SettingsProps, SettingsState> {
     chrome.storage.local.set({
       cacEmail: this.state.cacEmail,
       cacPassword: this.state.cacPassword,
-      cacSaved: true,
     });
+    this.setState({ cacSaved: true });
+  }
+
+  handleSaveCacWallet() {
+    chrome.storage.local.set({
+      cacWalletEmail: this.state.cacWalletEmail,
+      cacWalletPassword: this.state.cacWalletPassword,
+    });
+    this.setState({ cacWalletSaved: true });
   }
 
   handleSaveCacMine() {
     chrome.storage.local.set({
       cacMineEmail: this.state.cacMineEmail,
       cacMinePassword: this.state.cacMinePassword,
-      cacMineSaved: true,
     });
+    this.setState({ cacMineSaved: true });
   }
 
   componentDidMount() {
     // read stored values
-    chrome.storage.local.get(["cacEmail", "cacMineEmail"], (result) => {
-      this.setState({
-        cacEmail: result.cacEmail,
-        cacMineEmail: result.cacMineEmail,
-      });
-    });
+    chrome.storage.local.get(
+      ["cacEmail", "cacMineEmail", "cacWalletEmail"],
+      (result) => {
+        this.setState({
+          cacEmail: result.cacEmail,
+          cacWalletEmail: result.cacWalletEmail,
+          cacMineEmail: result.cacMineEmail,
+        });
+      }
+    );
   }
 
   render() {
@@ -98,7 +117,60 @@ class Settings extends Component<SettingsProps, SettingsState> {
                 </div>
               </div>
               {this.state.cacSaved && (
-                <p className="text-success">Settings saved successfully!</p>
+                <p className="text-success text-center">
+                  Settings saved successfully!
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="col-md-12">
+          <div className="card shadow mb-4">
+            <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 className="m-0 font-weight-bold text-primary">
+                CloudatCost Wallet Settings
+              </h6>
+            </div>
+            <div className="card-body">
+              <div className="form">
+                <div className="form-group">
+                  <label htmlFor="cacEmail">Email Address</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="cacEmail"
+                    placeholder="name@example.com"
+                    value={this.state.cacWalletEmail}
+                    onChange={(e) =>
+                      this.setState({ cacWalletEmail: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="cacPassword">Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="cacPassword"
+                    onChange={(e) =>
+                      this.setState({ cacWalletPassword: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="text-center">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    onClick={() => this.handleSaveCacWallet()}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+              {this.state.cacWalletSaved && (
+                <p className="text-success text-center">
+                  Settings saved successfully!
+                </p>
               )}
             </div>
           </div>
@@ -147,7 +219,9 @@ class Settings extends Component<SettingsProps, SettingsState> {
                 </div>
               </div>
               {this.state.cacMineSaved && (
-                <p className="text-success">Settings saved successfully!</p>
+                <p className="text-success text-center">
+                  Settings saved successfully!
+                </p>
               )}
             </div>
           </div>

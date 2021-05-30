@@ -16,6 +16,7 @@
   },
   "permissions": [
     "https://panel.cloudatcost.com/",
+    "https://wallet.cloudatcost.com/",
     "https://mining.cloudatcocks.com/",
     "storage",
     "activeTab",

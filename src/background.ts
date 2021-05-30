@@ -1,4 +1,4 @@
-import CloudatCostClient from "./apis/cloudatcost";
+import CloudatCostWalletClient from "./apis/cloudatcostwallet";
 import CloudatCocksClient from "./apis/cloudatcocks";
 
 const forwardTransactions = async () => {
@@ -6,17 +6,17 @@ const forwardTransactions = async () => {
 
   chrome.storage.local.get(
     [
-      "cacEmail",
-      "cacPassword",
+      "cacWalletEmail",
+      "cacWalletPassword",
       "cacMineEmail",
       "cacMinePassword",
       "forwardTransactionLogs",
     ],
     async (result) => {
       console.log("Checking C@C login status...");
-      const cacClient = new CloudatCostClient(
-        result.cacEmail,
-        result.cacPassword
+      const cacClient = new CloudatCostWalletClient(
+        result.cacWalletEmail,
+        result.cacWalletPassword
       );
 
       let isLoggedIn = await cacClient.isLoggedIn();
