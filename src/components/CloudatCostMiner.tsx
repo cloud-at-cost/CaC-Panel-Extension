@@ -10,7 +10,9 @@ type CloudatCostMinerState = {
   cloudatCocksClient?: CloudatCocksClient;
   currentBalance?: string;
   payoutSubmittedStatus?: string;
+  payoutResetStatus?: string;
   forwardingPayouts: boolean;
+  resettingPayouts: boolean;
   forwardTransactionTime: number;
   forwardTransactionAlarm?: chrome.alarms.Alarm;
   forwardTransactionTimeStatus?: string;
@@ -29,7 +31,9 @@ class CloudatCostMiner extends Component<
       cloudatCocksClient: undefined,
       currentBalance: undefined,
       payoutSubmittedStatus: undefined,
+      payoutResetStatus: undefined,
       forwardingPayouts: false,
+      resettingPayouts: false,
       forwardTransactionTime: 0,
       forwardTransactionAlarm: undefined,
       forwardTransactionTimeStatus: undefined,
@@ -44,6 +48,7 @@ class CloudatCostMiner extends Component<
     this.handleCloudatCocksLogin = this.handleCloudatCocksLogin.bind(this);
     this.handleSetBackgroundTime = this.handleSetBackgroundTime.bind(this);
     this.handleGetCurrentBalance = this.handleGetCurrentBalance.bind(this);
+    this.handlePayoutsReset = this.handlePayoutsReset.bind(this);
   }
 
   componentDidMount() {
@@ -81,6 +86,25 @@ class CloudatCostMiner extends Component<
         this.state.cloudatCocksClient?.getCurrentBalance().then((balance) => {
           this.setState({
             currentBalance: balance,
+          });
+        });
+      }
+    );
+  }
+
+  handlePayoutsReset() {
+    this.setState(
+      {
+        payoutResetStatus: undefined,
+        resettingPayouts: true,
+      },
+      () => {
+        this.state.cloudatCocksClient?.resetPayouts().then((success) => {
+          // attempt to reload their actual payouts
+          this.forwardPayouts();
+          this.setState({
+            payoutResetStatus: "Payouts reset with CloudAtCocks Mining panel!",
+            resettingPayouts: false,
           });
         });
       }
@@ -156,9 +180,9 @@ class CloudatCostMiner extends Component<
                     payoutSubmittedStatus: `Successfully forwarded ${resp.new} new transactions to panel (found ${wallet.transactions.length} total).`,
                     forwardingPayouts: false,
                   });
+                  // update current balance too
+                  this.handleGetCurrentBalance();
                 });
-              // update current balance too
-              this.handleGetCurrentBalance();
             } else {
               this.setState({
                 error: "No transactions found!",
@@ -306,6 +330,37 @@ class CloudatCostMiner extends Component<
                     {this.state.forwardTransactionTimeStatus && (
                       <p className="text-success">
                         {this.state.forwardTransactionTimeStatus}
+                      </p>
+                    )}
+                    <p>
+                      Time information is not compatible between the old and new
+                      versions of the CloudAtCost mining panels (less precision
+                      is given on the new site which causes duplicates). It is
+                      recommended to delete/reload all transactions synced with
+                      the CloudAtCocks panel.
+                    </p>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => this.handlePayoutsReset()}
+                      disabled={this.state.resettingPayouts}
+                    >
+                      {this.state.resettingPayouts && (
+                        <span>
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          Resetting...
+                        </span>
+                      )}
+                      {!this.state.resettingPayouts && (
+                        <span>Reset and Reload All Transactions</span>
+                      )}
+                    </button>
+                    {this.state.payoutResetStatus && (
+                      <p className="text-success">
+                        {this.state.payoutResetStatus}
                       </p>
                     )}
                   </div>

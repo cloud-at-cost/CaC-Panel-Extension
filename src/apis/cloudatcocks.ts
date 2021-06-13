@@ -112,6 +112,25 @@ export class CloudatCocksClient {
     });
   }
 
+  resetPayouts(): Promise<boolean> {
+    return this.getCSRFToken().then((token) => {
+      if (token) {
+        return fetch(`${CAC_MINING}/payouts`, {
+          method: "DELETE",
+          headers: {
+            "X-CSRF-TOKEN": token,
+            "content-type": "application/json",
+          },
+        }).then((resp) => {
+          // assume it was successful based off a 200 status code
+          return resp.status === 200;
+        });
+      } else {
+        throw new Error("Unable to get CSRF token to make request");
+      }
+    });
+  }
+
   getCurrentBalance(): Promise<string> {
     return fetch(`${CAC_MINING}/api/v1/payouts/bitcoin`)
       .then((resp) => resp.text())
