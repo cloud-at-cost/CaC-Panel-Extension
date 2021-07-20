@@ -143,7 +143,7 @@ export class CloudatCostWalletClient {
                 .split("\n")
                 .filter((a) => a.length > 0);
               const minerAction = values[0].split(" ");
-              const minerID = minerAction[2].replace("(", "").replace(")", "");
+              const minerID = minerAction[2]?.replace("(", "").replace(")", "");
               const minerType = miners.miners[minerID];
               const amount = values[2].split(" ")[0];
               const date = new Date(values[1])
