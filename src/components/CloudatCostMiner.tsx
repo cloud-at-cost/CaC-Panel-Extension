@@ -42,9 +42,8 @@ class CloudatCostMiner extends Component<
     };
     this.forwardPayouts = this.forwardPayouts.bind(this);
     this.getCurrentTransactionLogs = this.getCurrentTransactionLogs.bind(this);
-    this.handleCloudatCostWalletLogin = this.handleCloudatCostWalletLogin.bind(
-      this
-    );
+    this.handleCloudatCostWalletLogin =
+      this.handleCloudatCostWalletLogin.bind(this);
     this.handleCloudatCocksLogin = this.handleCloudatCocksLogin.bind(this);
     this.handleSetBackgroundTime = this.handleSetBackgroundTime.bind(this);
     this.handleGetCurrentBalance = this.handleGetCurrentBalance.bind(this);
