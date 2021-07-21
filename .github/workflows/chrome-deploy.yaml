@@ -1,0 +1,31 @@
+name: Chrome Extension Publish
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy Extension to Store
+    runs-on: ubuntu-latest
+    environment: Chrome Web Store
+    steps:
+      - name: Get latest build
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: "build.zip"
+          target: "./build.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to store
+        uses: Klemensas/chrome-extension-upload-action@1.4.1
+        with:
+          refresh-token: ${{ secrets.REFRESH_TOKEN }}
+          client-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          file-name: "./build.zip"
+          app-id: "nfbammmblghfpjalpefjjgdiackccmca"
+          publish: true
