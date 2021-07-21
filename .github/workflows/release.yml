@@ -21,6 +21,9 @@ jobs:
       - run: npm run build
         env:
           CI: ""
+      - run: npm run test
+        env:
+          CI: ""
       - uses: papeloto/action-zip@v1
         with:
           files: build/
