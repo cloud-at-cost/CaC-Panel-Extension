@@ -47,7 +47,7 @@ const forwardTransactions = async () => {
       }
 
       // now handle request
-      const wallet = await cacClient.getMiningWalletDetails();
+      const wallet = await cacClient.getMiningWalletDepositDetails();
       console.log("Found transactions:", wallet);
 
       let transactionsAdded = 0;
