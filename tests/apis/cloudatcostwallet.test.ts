@@ -79,7 +79,9 @@ describe("CloudAtCost Wallet", () => {
     const transactions = await client.getMiningWalletDetails();
 
     // check results
-    expect(transactions).toEqual(expectedTransactions);
+    transactions.transactions.forEach((tran) =>
+      expect(expectedTransactions.transactions).toContainEqual(tran)
+    );
   });
 
   test("Parses only deposit transactions successfully", async () => {
@@ -114,6 +116,8 @@ describe("CloudAtCost Wallet", () => {
     const transactions = await client.getMiningWalletDepositDetails();
 
     // check results
-    expect(transactions).toEqual(expectedTransactions);
+    transactions.transactions.forEach((tran) =>
+      expect(expectedTransactions.transactions).toContainEqual(tran)
+    );
   });
 });
