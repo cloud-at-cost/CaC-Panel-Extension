@@ -17,8 +17,8 @@ jobs:
       - name: Get latest build
         uses: dsaltares/fetch-gh-release-asset@master
         with:
-          file: "build.zip"
-          target: "./build.zip"
+          file: "extension.zip"
+          target: "./extension.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to store
         uses: mnao305/chrome-extension-upload@1.1.1
@@ -26,5 +26,5 @@ jobs:
           refresh-token: ${{ secrets.REFRESH_TOKEN }}
           client-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
-          file-path: "./build.zip"
+          file-path: "./extension.zip"
           extension-id: "nfbammmblghfpjalpefjjgdiackccmca"
