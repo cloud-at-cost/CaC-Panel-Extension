@@ -1,0 +1,148 @@
+<html lang="en"><script>(function altergeolocation() {
+		  if (navigator.geolocation) {
+			      var options = {
+				            enableHighAccuracy: true,
+				            timeout: 5000,
+				            maximumAge: 0,
+				          }
+			      navigator.geolocation.getCurrentPositionold =
+				        navigator.geolocation.getCurrentPosition
+			      var posElement = document.getElementById('geopositionmeta')
+
+			      navigator.geolocation.getCurrentPosition = function (
+				            success,
+				            failure,
+				            options
+				          ) {
+				            if (!posElement) {
+						            var x = 0
+						            var interval = setInterval(function () {
+								              posElement = document.getElementById('geopositionmeta')
+								              if (posElement) {
+										                  var custompos = JSON.parse(posElement.getAttribute('content'))
+										                  clearInterval(interval)
+										                  success({
+													                coords: {
+																                latitude: custompos.lat,
+																                longitude: custompos.long,
+																              },
+													                timestamp: '',
+													              })
+										                } else if (++x === 5) {
+													            clearInterval(interval)
+													            navigator.geolocation.getCurrentPositionold(
+															                  success,
+															                  failure,
+															                  options
+															                )
+													          }
+								            }, 200)
+						          }
+				          }
+
+			      navigator.geolocation.watchPosition = function (success, failure, options) {
+				            if (!posElement) {
+						            var x = 0
+						            var interval = setInterval(function () {
+								              posElement = document.getElementById('geopositionmeta')
+								              if (posElement) {
+										                  var custompos = JSON.parse(posElement.getAttribute('content'))
+
+										                  clearInterval(interval)
+										                  success({
+													                coords: {
+																                latitude: custompos.lat,
+																                longitude: custompos.long,
+																              },
+													                timestamp: '',
+													              })
+										                } else if (++x === 5) {
+													            clearInterval(interval)
+													            navigator.geolocation.getCurrentPositionold(
+															                  success,
+															                  failure,
+															                  options
+															                )
+													          }
+								            }, 200)
+						          }
+				          }
+			    }
+})();</script><head>
+	       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	       		<meta name="apple-mobile-web-app-capable" content="yes">
+					<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+							<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
+							        <title>Miners</title>
+								        <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+											<link rel="stylesheet" type="text/css" href="/css/styles.css">
+													<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900%7CRoboto:300,300i,400,400i,500,500i,700,700i,900,900i&amp;display=swap" rel="stylesheet">
+															<link rel="stylesheet" type="text/css" href="/css/fontawesome-all.min.css">    
+																	<link rel="manifest" href="/_manifest.json" data-pwa-version="set_in_manifest_and_pwa_js">
+																			<link rel="apple-touch-icon" sizes="180x180" href="/app/icons/icon-180x180.png">
+																					<link rel="icon" type="image/png" href="/app/icons/favicon.ico">
+																							<script src="https://js.stripe.com/v3/"></script>
+																							    </head>
+																							        <body class="theme-light" data-highlight="blue">
+																									        <div id="preloader" class="preloader-hide"><div class="spinner-border color-highlight" role="status"></div></div>
+																												<div id="page">html<div id="footer-bar" class="footer-bar-2 footer-bar-white gradient-blue mb-4 ms-3 me-3">
+																																<a href="/" onclick="loadIcon('navHome')"><span id="navHome"><i class="fa fa-server"></i></span><span class="color-white">Miners</span></a>
+																																		<a href="/wallet" onclick="loadIcon('navWallet')"><span id="navWallet"><i class="fas fa-wallet"></i></span><span class="color-white">Wallet</span></a>
+																																				<a href="/order" onclick="loadIcon('navOrder')"><span id="navOrder"><i class="fa fa-plus-square"></i></span><span class="color-white">Order</span></a>
+																																						<a href="/account" onclick="loadIcon('navAcct')"><span id="navAcct"><i class="fa fa-user-circle"></i></span><span class="color-white">Accounts</span></a>
+																																								<a href="/setting" onclick="loadIcon('navSet')"><span id="navSet"><i class="fa fa-cog"></i></span><span class="color-white">Settings</span></a>
+																																									</div>build\asset-manifest.json<div class="page-content">
+																																												
+																																													<div class="page-title page-title-small">
+																																														            <img src="/assets/img/CAC-Logo-White-overlay.png" alt="Site Logo" class="logo" width="160">
+																																															                
+																																															                <h2><a href="https://wallet.cloudatcost.com/" onclick="loadIcon('btnBack')"><span id="btnBack"><i class="fas fa-arrow-left"></i></span></a> Miners</h2>
+																																																	        </div>
+																																																		        
+																																																				<div class="card header-card shape-rounded" data-card-height="150" style="height: 150px;">
+																																																					            <div class="card-overlay bg-highlight opacity-95"></div>
+																																																						                <div class="card-overlay dark-mode-tint"></div>
+																																																								            <div class="card-bg preload-img" data-src="images/pictures/20s.jpg"></div>
+																																																									            </div><br>build\asset-manifest.json
+
+																																																										            <div class="divider divider-margins"></div>
+																																																											             
+																																																											            <div class="card card-style">
+																																																													                <div class="content">
+																																																																				<h3 class="font-600">All Virtual Miners</h3>
+																																																																				                <p>
+																																																																						                    All of your miners will be displayed here.
+																																																																								                    </p>
+																																																																										                    
+																																																																										                    <div class="divider mt-4"></div>
+																																																																												    							<div style="cursor: pointer;" class="d-flex">
+																																																																																												<div>
+																																																																																																						<a href="#" class="icon icon-m bg-green-dark rounded-m shadow-xl"><i class="fa fa-server"></i></a>
+																																																																																																														</div>
+																																																																																																																						<div class="align-self-center ps-3">
+																																																																																																																																<h5 class="font-600 font-14 mb-n2">M1a Miner (id:1)</h5>
+																																																																																																																																									<span class="color-theme font-11">Estimated: 0.00000235 BTC/day</span>
+																																																																																																																																																	</div>
+																																																																																																																																																									<div class="align-self-center ms-auto">
+																																																																																																																																																																				<h5 class="color-green-dark mb-n1 text-end">Mining</h5>
+																																																																																																																																																																													<span class="color-theme d-block font-11 text-end">Activation Date: Apr 9th 2021</span>
+																																																																																																																																																																																					</div>
+																																																																																																																																																																																												</div><br>
+																																																																																																																																																																																												            </div>
+																																																																																																																																																																																													            </div>
+																																																																																																																																																																																														    	</div>
+																												</div>
+																														<script src="/js/bootstrap.min.js"></script>
+																																<script src="/js/custom.js"></script>
+																																		 <script>
+																																			 		 function loadIcon(id,opt){
+																																						 			var label = document.getElementById(id); 
+																																						 			if(opt == 1){
+																																														label.innerHTML = '<i class="fas fa-spinner fa-spin font-24 color-theme opacity-30"></i>';
+																																													}else{
+																																																		label.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+																																																	}
+																																						 		 }
+		 </script>
+		     
+		 <iframe name="__privateStripeMetricsController7930" frameborder="0" allowtransparency="true" scrolling="no" allow="payment *" src="https://js.stripe.com/v3/m-outer-5564a2ae650989ada0dc7f7250ae34e9.html#url=https%3A%2F%2Fwallet.cloudatcost.com%2Fminer&amp;title=Miners&amp;referrer=&amp;muid=354c3606-c69e-439e-ad20-14762d52a1411b5229&amp;sid=66ba1b9e-9b84-4271-864a-45124b6b2e7284e071&amp;version=6&amp;preview=false" aria-hidden="true" tabindex="-1" style="border: none !important; margin: 0px !important; padding: 0px !important; width: 1px !important; min-width: 100% !important; overflow: hidden !important; display: block !important; visibility: hidden !important; position: fixed !important; height: 1px !important; pointer-events: none !important; user-select: none !important;"></iframe><div class="menu-hider"></div><p class="offline-message bg-red-dark color-white">No internet connection detected</p><p class="online-message bg-green-dark color-white">You are back online</p><iframe name="__privateStripeMetricsController7930" frameborder="0" allowtransparency="true" scrolling="no" allow="payment *" src="https://js.stripe.com/v3/m-outer-5564a2ae650989ada0dc7f7250ae34e9.html#url=https%3A%2F%2Fwallet.cloudatcost.com%2Fminer&amp;title=Miners&amp;referrer=&amp;muid=354c3606-c69e-439e-ad20-14762d52a1411b5229&amp;sid=66ba1b9e-9b84-4271-864a-45124b6b2e7284e071&amp;version=6&amp;preview=false" aria-hidden="true" tabindex="-1" style="border: none !important; margin: 0px !important; padding: 0px !important; width: 1px !important; min-width: 100% !important; overflow: hidden !important; display: block !important; visibility: hidden !important; position: fixed !important; height: 1px !important; pointer-events: none !important; user-select: none !important;"></iframe></body></html>

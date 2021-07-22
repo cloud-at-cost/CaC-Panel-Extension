@@ -103,7 +103,8 @@ export class CloudatCostWalletClient {
             if (minerEntry.classNames === "align-self-center ps-3") {
               const text = minerEntry.text;
               const values = text
-                .replaceAll("\t", "")
+                .replace(/\t/g, "")
+                .replace(/\r/g, "")
                 .split("\n")
                 .filter((a) => a.length > 0);
               const minerInfo = values[0].split("(");
@@ -139,7 +140,8 @@ export class CloudatCostWalletClient {
             if (tr.childNodes.length > 0) {
               const text = tr.text;
               const values = text
-                .replaceAll("\t", "")
+                .replace(/\t/g, "")
+                .replace(/\r/g, "")
                 .split("\n")
                 .filter((a) => a.length > 0);
               const minerAction = values[0].split(" ");
@@ -167,6 +169,17 @@ export class CloudatCostWalletClient {
           transactions: transactions,
         };
       });
+  }
+
+  async getMiningWalletDepositDetails(): Promise<MiningWalletResponse> {
+    const walletDetails = await this.getMiningWalletDetails();
+    // reduce transactions to only deposits
+    const deposits = walletDetails.transactions.filter((trans) => {
+      return trans.type === "deposit";
+    });
+    return {
+      transactions: deposits,
+    };
   }
 }
 export default CloudatCostWalletClient;

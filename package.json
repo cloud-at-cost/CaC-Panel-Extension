@@ -1,6 +1,6 @@
 {
   "name": "cac-panel-extension",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
@@ -31,7 +31,7 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "build:dev": "cross-env NODE_ENV=development react-app-rewired build",
-    "test": "react-app-rewired test",
+    "test": "react-app-rewired test --verbose --watchAll=false",
     "prettier": "prettier --write --ignore-unknown .",
     "eject": "react-app-rewired eject",
     "prepare": "husky install"
@@ -40,6 +40,18 @@
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/tests/"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.[jt]s?(x)?"
+    ],
+    "rootDir": ".",
+    "setupFiles": [
+      "./tests/setupJest.ts"
     ]
   },
   "browserslist": {
@@ -57,6 +69,7 @@
   "devDependencies": {
     "@types/chrome": "0.0.133",
     "chrome-manifest-sync-webpack-plugin": "^1.0.1",
-    "husky": "^6.0.0"
+    "husky": "^6.0.0",
+    "jest-fetch-mock": "^3.0.3"
   }
 }

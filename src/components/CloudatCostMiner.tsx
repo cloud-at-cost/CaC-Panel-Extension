@@ -169,7 +169,7 @@ class CloudatCostMiner extends Component<
       },
       () => {
         this.state.cloudatCostWalletClient
-          ?.getMiningWalletDetails()
+          ?.getMiningWalletDepositDetails()
           .then((wallet) => {
             if (wallet.transactions.length > 0) {
               this.state.cloudatCocksClient
