@@ -21,11 +21,10 @@ jobs:
           target: "./build.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to store
-        uses: Passiverecords/chrome-extension-upload-action@1.4.1
+        uses: mnao305/chrome-extension-upload@1.1.1
         with:
           refresh-token: ${{ secrets.REFRESH_TOKEN }}
           client-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
-          file-name: "./build.zip"
-          app-id: "nfbammmblghfpjalpefjjgdiackccmca"
-          publish: true
+          file-path: "./build.zip"
+          extension-id: "nfbammmblghfpjalpefjjgdiackccmca"
