@@ -5,9 +5,9 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+        #pull_request:
+        #  branches:
+        #    - main
 jobs:
   deploy:
     name: Deploy Extension to Store
@@ -21,7 +21,7 @@ jobs:
           target: "./build.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to store
-        uses: Klemensas/chrome-extension-upload-action@1.4.1
+        uses: Passiverecords/chrome-extension-upload-action@1.4.1
         with:
           refresh-token: ${{ secrets.REFRESH_TOKEN }}
           client-id: ${{ secrets.CLIENT_ID }}
