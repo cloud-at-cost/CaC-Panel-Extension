@@ -3,6 +3,8 @@ import CloudatCostWalletLogin from "./CloudatCostWalletLogin";
 import CloudatCocksLogin from "./CloudatCocksLogin";
 import CloudatCocksClient from "../apis/cloudatcocks";
 import CloudatCostWalletClient from "../apis/cloudatcostwallet";
+import BootstrapSwitchButton from "bootstrap-switch-button-react";
+import { getSyncMethod } from "../util";
 
 type CloudatCostMinerProps = {};
 type CloudatCostMinerState = {
@@ -11,6 +13,7 @@ type CloudatCostMinerState = {
   currentBalance?: string;
   payoutSubmittedStatus?: string;
   payoutResetStatus?: string;
+  syncPayouts?: boolean;
   forwardingPayouts: boolean;
   resettingPayouts: boolean;
   forwardTransactionTime: number;
@@ -32,6 +35,7 @@ class CloudatCostMiner extends Component<
       currentBalance: undefined,
       payoutSubmittedStatus: undefined,
       payoutResetStatus: undefined,
+      syncPayouts: undefined,
       forwardingPayouts: false,
       resettingPayouts: false,
       forwardTransactionTime: 0,
@@ -48,16 +52,21 @@ class CloudatCostMiner extends Component<
     this.handleSetBackgroundTime = this.handleSetBackgroundTime.bind(this);
     this.handleGetCurrentBalance = this.handleGetCurrentBalance.bind(this);
     this.handlePayoutsReset = this.handlePayoutsReset.bind(this);
+    this.handleSetSyncPayouts = this.handleSetSyncPayouts.bind(this);
   }
 
   componentDidMount() {
-    chrome.storage.local.get(["forwardTransactionTime"], (result) => {
-      if (result.forwardTransactionTime) {
-        this.setState({
-          forwardTransactionTime: result.forwardTransactionTime,
-        });
+    chrome.storage.local.get(
+      ["forwardTransactionTime", "syncPayouts"],
+      (result) => {
+        if (result.forwardTransactionTime) {
+          this.setState({
+            forwardTransactionTime: result.forwardTransactionTime,
+            syncPayouts: result.syncPayouts,
+          });
+        }
       }
-    });
+    );
     chrome.alarms.get("forwardTransactions", (alarm) => {
       this.setState({
         forwardTransactionAlarm: alarm,
@@ -160,6 +169,17 @@ class CloudatCostMiner extends Component<
     );
   }
 
+  handleSetSyncPayouts(newStatus: boolean) {
+    this.setState(
+      {
+        syncPayouts: newStatus,
+      },
+      () => {
+        chrome.storage.local.set({ syncPayouts: newStatus });
+      }
+    );
+  }
+
   forwardPayouts() {
     this.setState(
       {
@@ -167,28 +187,29 @@ class CloudatCostMiner extends Component<
         forwardingPayouts: true,
         error: undefined,
       },
-      () => {
-        this.state.cloudatCostWalletClient
-          ?.getMiningWalletDepositDetails()
-          .then((wallet) => {
-            if (wallet.transactions.length > 0) {
-              this.state.cloudatCocksClient
-                ?.savePayout(wallet.transactions)
-                .then((resp) => {
-                  this.setState({
-                    payoutSubmittedStatus: `Successfully forwarded ${resp.new} new transactions to panel (found ${wallet.transactions.length} total).`,
-                    forwardingPayouts: false,
-                  });
-                  // update current balance too
-                  this.handleGetCurrentBalance();
+      async () => {
+        const syncMethod = await getSyncMethod(
+          this.state.cloudatCostWalletClient
+        );
+        syncMethod().then((wallet) => {
+          if (wallet.transactions.length > 0) {
+            this.state.cloudatCocksClient
+              ?.savePayout(wallet.transactions)
+              .then((resp) => {
+                this.setState({
+                  payoutSubmittedStatus: `Successfully forwarded ${resp.new} new transactions to panel (found ${wallet.transactions.length} total).`,
+                  forwardingPayouts: false,
                 });
-            } else {
-              this.setState({
-                error: "No transactions found!",
-                forwardingPayouts: false,
+                // update current balance too
+                this.handleGetCurrentBalance();
               });
-            }
-          });
+          } else {
+            this.setState({
+              error: "No transactions found!",
+              forwardingPayouts: false,
+            });
+          }
+        });
       }
     );
   }
@@ -248,120 +269,133 @@ class CloudatCostMiner extends Component<
                   background (recommended to save your password in settings).
                 </p>
                 {this.state.cloudatCocksClient !== undefined && (
-                  <div className="col-md-6 col-md-offset-3 text-center">
-                    {this.state.error && (
-                      <p className="text-center text-danger">
-                        {this.state.error}
-                      </p>
-                    )}
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => this.forwardPayouts()}
-                      disabled={this.state.forwardingPayouts}
-                    >
-                      {this.state.forwardingPayouts && (
-                        <span>
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          Forwarding...
-                        </span>
-                      )}
-                      {!this.state.forwardingPayouts && (
-                        <span>Forward Transactions to Panel</span>
-                      )}
-                    </button>
-                    {this.state.payoutSubmittedStatus && (
-                      <p className="text-success">
-                        {this.state.payoutSubmittedStatus}
-                      </p>
-                    )}
-                    <div className="form mt-3">
-                      {this.state.forwardTransactionAlarm && (
-                        <p>
-                          Next scheduled sync:{" "}
-                          {new Date(
-                            this.state.forwardTransactionAlarm.scheduledTime
-                          ).toISOString()}
+                  <div>
+                    <div className="col-md-6 col-md-offset-3 text-center mb-3">
+                      <BootstrapSwitchButton
+                        checked={this.state.syncPayouts}
+                        onlabel="Sync Payouts + Deposits"
+                        onstyle="success"
+                        offlabel="Sync Deposits Only"
+                        offstyle="secondary"
+                        style="w-100 mx-3"
+                        onChange={this.handleSetSyncPayouts}
+                      />
+                    </div>
+                    <div className="col-md-6 col-md-offset-3 text-center">
+                      {this.state.error && (
+                        <p className="text-center text-danger">
+                          {this.state.error}
                         </p>
                       )}
-                      <div className="form-group">
-                        <label>Sync Interval (minutes):</label>
-                        <div className="input-group">
-                          <input
-                            className="form-control"
-                            type="number"
-                            value={this.state.forwardTransactionTime}
-                            onChange={(e) =>
-                              this.setState({
-                                forwardTransactionTime: parseInt(
-                                  e.target.value
-                                ),
-                              })
-                            }
-                          />
-                          <div className="input-group-append">
-                            <button
-                              className="btn btn-outline-primary"
-                              onClick={() => this.handleSetBackgroundTime()}
-                            >
-                              Save
-                            </button>
-                            {this.state.forwardTransactionTime > 0 && (
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => this.forwardPayouts()}
+                        disabled={this.state.forwardingPayouts}
+                      >
+                        {this.state.forwardingPayouts && (
+                          <span>
+                            <span
+                              className="spinner-border spinner-border-sm"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                            Forwarding...
+                          </span>
+                        )}
+                        {!this.state.forwardingPayouts && (
+                          <span>Forward Transactions to Panel</span>
+                        )}
+                      </button>
+                      {this.state.payoutSubmittedStatus && (
+                        <p className="text-success">
+                          {this.state.payoutSubmittedStatus}
+                        </p>
+                      )}
+                      <div className="form mt-3">
+                        {this.state.forwardTransactionAlarm && (
+                          <p>
+                            Next scheduled sync:{" "}
+                            {new Date(
+                              this.state.forwardTransactionAlarm.scheduledTime
+                            ).toISOString()}
+                          </p>
+                        )}
+                        <div className="form-group">
+                          <label>Sync Interval (minutes):</label>
+                          <div className="input-group">
+                            <input
+                              className="form-control"
+                              type="number"
+                              value={this.state.forwardTransactionTime}
+                              onChange={(e) =>
+                                this.setState({
+                                  forwardTransactionTime: parseInt(
+                                    e.target.value
+                                  ),
+                                })
+                              }
+                            />
+                            <div className="input-group-append">
                               <button
-                                className="btn btn-outline-danger"
-                                onClick={() =>
-                                  this.setState(
-                                    { forwardTransactionTime: 0 },
-                                    this.handleSetBackgroundTime
-                                  )
-                                }
+                                className="btn btn-outline-primary"
+                                onClick={() => this.handleSetBackgroundTime()}
                               >
-                                Disable
+                                Save
                               </button>
-                            )}
+                              {this.state.forwardTransactionTime > 0 && (
+                                <button
+                                  className="btn btn-outline-danger"
+                                  onClick={() =>
+                                    this.setState(
+                                      { forwardTransactionTime: 0 },
+                                      this.handleSetBackgroundTime
+                                    )
+                                  }
+                                >
+                                  Disable
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
+                      {this.state.forwardTransactionTimeStatus && (
+                        <p className="text-success">
+                          {this.state.forwardTransactionTimeStatus}
+                        </p>
+                      )}
+                      <p>
+                        Time information is not compatible between the old and
+                        new versions of the CloudAtCost mining panels (less
+                        precision is given on the new site which causes
+                        duplicates). It is recommended to delete/reload all
+                        transactions synced with the CloudAtCocks panel.
+                      </p>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => this.handlePayoutsReset()}
+                        disabled={this.state.resettingPayouts}
+                      >
+                        {this.state.resettingPayouts && (
+                          <span>
+                            <span
+                              className="spinner-border spinner-border-sm"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                            Resetting...
+                          </span>
+                        )}
+                        {!this.state.resettingPayouts && (
+                          <span>Reset and Reload All Transactions</span>
+                        )}
+                      </button>
+                      {this.state.payoutResetStatus && (
+                        <p className="text-success">
+                          {this.state.payoutResetStatus}
+                        </p>
+                      )}
                     </div>
-                    {this.state.forwardTransactionTimeStatus && (
-                      <p className="text-success">
-                        {this.state.forwardTransactionTimeStatus}
-                      </p>
-                    )}
-                    <p>
-                      Time information is not compatible between the old and new
-                      versions of the CloudAtCost mining panels (less precision
-                      is given on the new site which causes duplicates). It is
-                      recommended to delete/reload all transactions synced with
-                      the CloudAtCocks panel.
-                    </p>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => this.handlePayoutsReset()}
-                      disabled={this.state.resettingPayouts}
-                    >
-                      {this.state.resettingPayouts && (
-                        <span>
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          Resetting...
-                        </span>
-                      )}
-                      {!this.state.resettingPayouts && (
-                        <span>Reset and Reload All Transactions</span>
-                      )}
-                    </button>
-                    {this.state.payoutResetStatus && (
-                      <p className="text-success">
-                        {this.state.payoutResetStatus}
-                      </p>
-                    )}
                   </div>
                 )}
               </div>

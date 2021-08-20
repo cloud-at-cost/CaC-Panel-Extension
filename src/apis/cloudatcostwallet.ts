@@ -154,9 +154,9 @@ export class CloudatCostWalletClient {
                 .split(".")[0];
               const type = minerAction[0].toLowerCase();
               transactions.push({
-                minerID: minerID,
+                minerID: minerID ? minerID : "",
                 packageID: "",
-                minerType: minerType,
+                minerType: minerType ? minerType : "",
                 amount: amount,
                 date: date,
                 type: type,
