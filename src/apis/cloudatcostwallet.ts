@@ -2,7 +2,6 @@ import { parse } from "node-html-parser";
 
 export type MiningWalletTransaction = {
   minerID: string | undefined;
-  packageID: string | undefined;
   minerType: string | undefined;
   amount: string | undefined;
   date: string | undefined;
@@ -158,7 +157,6 @@ export class CloudatCostWalletClient {
               const type = minerAction[0].toLowerCase();
               transactions.push({
                 minerID: minerID ? minerID : "",
-                packageID: "",
                 minerType: minerType ? minerType : "",
                 amount: amount,
                 date: date,
