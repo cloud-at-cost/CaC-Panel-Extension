@@ -35,17 +35,17 @@ describe("CloudAtCost Wallet", () => {
     const expectedTransactions = {
       transactions: [
         {
-          minerID: undefined,
+          minerID: "",
           packageID: "",
-          minerType: undefined,
+          minerType: "",
           amount: "0.00101399",
           date: "2021-06-18 19:26:00",
           type: "withdraw",
         },
         {
-          minerID: undefined,
+          minerID: "",
           packageID: "",
-          minerType: undefined,
+          minerType: "",
           amount: "0.06590966",
           date: "2021-06-18 19:25:00",
           type: "withdraw",

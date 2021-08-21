@@ -1,5 +1,6 @@
 import CloudatCostWalletClient from "./apis/cloudatcostwallet";
 import CloudatCocksClient from "./apis/cloudatcocks";
+import { getSyncMethod } from "./util";
 
 const forwardTransactions = async () => {
   console.log("Forwarding transactions...");
@@ -47,7 +48,8 @@ const forwardTransactions = async () => {
       }
 
       // now handle request
-      const wallet = await cacClient.getMiningWalletDepositDetails();
+      const syncMethod = await getSyncMethod(cacClient);
+      const wallet = await syncMethod();
       console.log("Found transactions:", wallet);
 
       let transactionsAdded = 0;
