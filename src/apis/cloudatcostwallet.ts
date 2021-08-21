@@ -96,24 +96,27 @@ export class CloudatCostWalletClient {
         const miners: { [id: string]: string } = {};
 
         //const minerList = dom.querySelector(".align-self-center.ps-3");
-        const minerList = dom.querySelector(".content > .d-flex");
-        if (minerList?.childNodes) {
-          for (let minerEntry of minerList.childNodes) {
-            // @ts-expect-error
-            if (minerEntry.classNames === "align-self-center ps-3") {
-              const text = minerEntry.text;
-              const values = text
-                .replace(/\t/g, "")
-                .replace(/\r/g, "")
-                .split("\n")
-                .filter((a) => a.length > 0);
-              const minerInfo = values[0].split("(");
-              const minerID = minerInfo[1]
-                .split(":")[1]
-                .replace(")", "")
-                .trim();
-              const minerType = minerInfo[0].trim();
-              miners[minerID] = minerType;
+        const minerList = dom.querySelectorAll(".content > .d-flex");
+        for (const minerListItem of minerList) {
+          if (minerListItem?.childNodes) {
+            for (let minerEntry of minerListItem.childNodes) {
+              // @ts-expect-error
+              if (minerEntry.classNames === "align-self-center ps-3") {
+                const text = minerEntry.text;
+                const values = text
+                  .replace(/\t/g, "")
+                  .replace(/\r/g, "")
+                  .replace(/-/g, "")
+                  .split("\n")
+                  .filter((a) => a.length > 0);
+                const minerInfo = values[0].split("(");
+                const minerID = minerInfo[1]
+                  .split(":")[1]
+                  .replace(")", "")
+                  .trim();
+                const minerType = minerInfo[0].trim();
+                miners[minerID] = minerType;
+              }
             }
           }
         }

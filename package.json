@@ -1,6 +1,6 @@
 {
   "name": "cac-panel-extension",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",

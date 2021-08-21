@@ -17,6 +17,7 @@ describe("CloudAtCost Wallet", () => {
     const expectedMiners = {
       miners: {
         "1": "M1a Miner",
+        "2": "M1b Miner",
       },
     };
 
@@ -59,9 +60,9 @@ describe("CloudAtCost Wallet", () => {
           type: "deposit",
         },
         {
-          minerID: "1",
+          minerID: "2",
           packageID: "",
-          minerType: "M1a Miner",
+          minerType: "M1b Miner",
           amount: "0.00003000",
           date: "2021-06-18 16:01:00",
           type: "deposit",
@@ -96,9 +97,9 @@ describe("CloudAtCost Wallet", () => {
           type: "deposit",
         },
         {
-          minerID: "1",
+          minerID: "2",
           packageID: "",
-          minerType: "M1a Miner",
+          minerType: "M1b Miner",
           amount: "0.00003000",
           date: "2021-06-18 16:01:00",
           type: "deposit",
