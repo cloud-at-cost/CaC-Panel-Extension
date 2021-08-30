@@ -2,7 +2,6 @@ import { parse } from "node-html-parser";
 
 export type Payout = {
   minerID: string | undefined;
-  packageID: string | undefined;
   minerType: string | undefined;
   amount: string | undefined;
   date: string | undefined;
