@@ -28,3 +28,7 @@ Grab the latest release [here](https://github.com/zack-hable/CaC-Panel-Extension
 First install all project dependencies from NPM with `npm install`.
 Then build the project with `npm run build`.
 Finally start chrome and navgiate to the extensions page, enable "development mode" and manually add a new extension (a file explorer window should appear). Navigate to this directory/build.
+
+## Privacy Policy
+
+Please refer to our [privacy policy](.\privacy-policy.md)
